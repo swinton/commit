@@ -9,7 +9,7 @@ runs:
   steps:
     - shell: bash
       run: |
-        gh api graphql \
+        response=$( gh api graphql \
           --field owner=':owner' \
           --field repo=':repo' \
           --raw-field \
@@ -27,4 +27,8 @@ runs:
                 }
               }
             }
-          }'
+          }' )
+        head_sha=$( jq -r '.data.repository.defaultBranchRef.commit.oid' <<< "${response}" )
+        tree_sha=$( jq -r '.data.repository.defaultBranchRef.commit.tree.oid' <<< "${response}" )
+        echo "::set-output name=head-sha::$head_sha"
+        echo "::set-output name=tree-sha::$tree_sha"
