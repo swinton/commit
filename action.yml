@@ -9,4 +9,22 @@ runs:
   steps:
     - shell: bash
       run: |
-        echo ${{ inputs.path }}
+        gh api graphql \
+          --field owner=':owner' \
+          --field repo=':repo' \
+          --raw-field \
+          query='query repoContents($owner: String!, $repo: String!) {
+            repository(owner: $owner, name: $repo) {
+              defaultBranchRef {
+                name
+                commit: target {
+                  ... on Commit {
+                    oid
+                    tree {
+                      oid
+                    }
+                  }
+                }
+              }
+            }
+          }'

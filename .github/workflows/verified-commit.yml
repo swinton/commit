@@ -23,5 +23,7 @@ jobs:
         dd if=/dev/urandom count=1 > myfile
     - name: Commit file
       uses: ./
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         path: ./myfile
