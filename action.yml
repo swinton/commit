@@ -28,11 +28,9 @@ runs:
               }
             }
           }' )
-        head_sha=$( jq -r '.data.repository.defaultBranchRef.commit.oid' <<< "${response}" )
-        tree_sha=$( jq -r '.data.repository.defaultBranchRef.commit.tree.oid' <<< "${response}" )
-        echo "::set-output name=head-sha::$head_sha"
-        echo "::set-output name=tree-sha::$tree_sha"
+        echo HEAD_SHA=$( jq -r '.data.repository.defaultBranchRef.commit.oid' <<< "${response}" ) >> $GITHUB_ENV
+        echo TREE_SHA=$( jq -r '.data.repository.defaultBranchRef.commit.tree.oid' <<< "${response}" ) >> $GITHUB_ENV
     - shell: bash
       run: |
-        echo head SHA is: ${{ outputs.head-sha }}.
-        echo tree SHA is: ${{ outputs.tree-sha }}.
+        echo head SHA is: $HEAD_SHA.
+        echo tree SHA is: $TREE_SHA.
