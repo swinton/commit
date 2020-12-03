@@ -32,3 +32,7 @@ runs:
         tree_sha=$( jq -r '.data.repository.defaultBranchRef.commit.tree.oid' <<< "${response}" )
         echo "::set-output name=head-sha::$head_sha"
         echo "::set-output name=tree-sha::$tree_sha"
+    - shell: bash
+      run: |
+        echo head SHA is: ${{ outputs.head-sha }}.
+        echo tree SHA is: ${{ outputs.tree-sha }}.
