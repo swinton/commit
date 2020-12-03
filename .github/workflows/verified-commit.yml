@@ -1,0 +1,24 @@
+name: Verified Commit Demo
+
+on:
+  workflow_dispatch:
+
+jobs:
+  demo:
+    name: Demo
+    runs-on: ubuntu-latest
+    steps:
+    - name: Context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: |
+        echo "$GITHUB_CONTEXT"
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Create file
+      run: |
+        dd if=/dev/urandom count=1 > myfile
+    - name: Commit file
+      uses: ./
+      with:
+        path: ./myfile

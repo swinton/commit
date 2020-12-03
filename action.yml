@@ -1,0 +1,12 @@
+name: Verified commit
+description: Create a verified commit with GitHub Actions
+inputs:
+  path:
+    description: Filesystem path of file to be committed
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        echo ${{ inputs.path }}
