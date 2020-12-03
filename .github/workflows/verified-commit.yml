@@ -1,7 +1,10 @@
 name: Verified Commit Demo
 
+# npx trigger-repository-dispatch --nwo=swinton/verified-commit --event-type=demo
 on:
   workflow_dispatch:
+  repository_dispatch:
+    types: [demo]
 
 jobs:
   demo:
