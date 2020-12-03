@@ -7,6 +7,7 @@ inputs:
 runs:
   using: composite
   steps:
+    # Get head commit sha, tree sha
     - shell: bash
       run: |
         response=$( gh api graphql \
@@ -30,7 +31,21 @@ runs:
           }' )
         echo HEAD_SHA=$( jq -r '.data.repository.defaultBranchRef.commit.oid' <<< "${response}" ) >> $GITHUB_ENV
         echo TREE_SHA=$( jq -r '.data.repository.defaultBranchRef.commit.tree.oid' <<< "${response}" ) >> $GITHUB_ENV
+
+    # Create blob
     - shell: bash
       run: |
-        echo head SHA is: $HEAD_SHA.
-        echo tree SHA is: $TREE_SHA.
+        content=$( mktemp )
+        base64 -i ${{ inputs.path }} | jq --raw-input > $content
+
+        payload=$( mktemp )
+        jq --null-input \
+          --arg encoding "base64" \
+          --argfile content "$content" \
+          '{"content": $content, "encoding": $encoding}' > $payload
+
+        curl --request POST \
+          --url https://api.github.com/repos/$GITHUB_REPOSITORY/git/blobs \
+          --header "authorization: Bearer $GH_TOKEN" \
+          --header 'content-type: application/json' \
+          --data @$payload
