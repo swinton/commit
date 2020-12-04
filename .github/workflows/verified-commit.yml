@@ -26,11 +26,13 @@ jobs:
         dd if=/dev/urandom count=1 > myfile
 
     - name: Commit file
+      id: commit
       uses: ./
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         path: ./myfile
+        commit-message: Committing ./myfile
 
     - name: Inspect environment
       run: |
@@ -38,3 +40,4 @@ jobs:
         echo BASE_TREE_SHA=$BASE_TREE_SHA
         echo BLOB_SHA=$BLOB_SHA
         echo TREE_SHA=$TREE_SHA
+        echo COMMIT_SHA=$COMMIT_SHA

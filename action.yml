@@ -4,6 +4,13 @@ inputs:
   path:
     description: Filesystem path of file to be committed
     required: true
+  commit-message:
+    description: Commit message to be used
+    required: true
+outputs:
+  commit-sha:
+    description: SHA of created commit
+    value: ${{ steps.commit.outputs.commit-sha }}
 runs:
   using: composite
   steps:
@@ -18,6 +25,11 @@ runs:
     # Create tree
     - shell: bash
       run: ./create-tree.sh
+
+    # Create commit
+    - shell: bash
+      id: commit
+      run: ./create-commit.sh "${{ inputs.commit-message }}"
 branding:
   icon: git-commit
   color: purple

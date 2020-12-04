@@ -17,6 +17,7 @@ In your workflow, to commit a file `./myfile`, include a step like this:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         path: ./myfile
+        commit-message: Committing ./myfile
 ```
 
 Note, the `GH_TOKEN` environment variable is required, since commits are created using GitHub's [Git Database API](https://docs.github.com/rest/reference/git).
