@@ -7,45 +7,10 @@ inputs:
 runs:
   using: composite
   steps:
-    # Get head commit sha, tree sha
+    # Get object ids: head commit sha, tree sha
     - shell: bash
-      run: |
-        response=$( gh api graphql \
-          --field owner=':owner' \
-          --field repo=':repo' \
-          --raw-field \
-          query='query repoContents($owner: String!, $repo: String!) {
-            repository(owner: $owner, name: $repo) {
-              defaultBranchRef {
-                name
-                commit: target {
-                  ... on Commit {
-                    oid
-                    tree {
-                      oid
-                    }
-                  }
-                }
-              }
-            }
-          }' )
-        echo HEAD_SHA=$( jq -r '.data.repository.defaultBranchRef.commit.oid' <<< "${response}" ) >> $GITHUB_ENV
-        echo TREE_SHA=$( jq -r '.data.repository.defaultBranchRef.commit.tree.oid' <<< "${response}" ) >> $GITHUB_ENV
+      run: ./get-oids.sh
 
     # Create blob
     - shell: bash
-      run: |
-        content=$( mktemp )
-        base64 -i ${{ inputs.path }} | jq --raw-input > $content
-
-        payload=$( mktemp )
-        jq --null-input \
-          --arg encoding "base64" \
-          --argfile content "$content" \
-          '{"content": $content, "encoding": $encoding}' > $payload
-
-        curl --request POST \
-          --url https://api.github.com/repos/$GITHUB_REPOSITORY/git/blobs \
-          --header "authorization: Bearer $GH_TOKEN" \
-          --header 'content-type: application/json' \
-          --data @$payload
+      run: ./create-blob.sh "${{ inputs.path }}"
