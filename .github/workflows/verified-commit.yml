@@ -41,3 +41,10 @@ jobs:
         echo BLOB_SHA=$BLOB_SHA
         echo TREE_SHA=$TREE_SHA
         echo COMMIT_SHA=$COMMIT_SHA
+
+    - name: Echo commit SHA
+      env:
+        MY_COMMIT_SHA: ${{ steps.commit.outputs.commit-sha }}
+      run: |
+        echo "$MY_COMMIT_SHA was created"
+        echo "https://github.com/$GITHUB_REPOSITORY/commit/$MY_COMMIT_SHA"
