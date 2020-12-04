@@ -21,10 +21,6 @@ outputs:
 runs:
   using: composite
   steps:
-    # Initialize
-    - shell: bash
-      run: source ${{ github.action_path }}/functions.sh
-
     # Get object ids: head commit sha, tree sha
     - shell: bash
       run: ${{ github.action_path }}/inspect-ref.sh "${{ inputs.ref }}"

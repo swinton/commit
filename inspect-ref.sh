@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+source functions.sh
+
 # Ref to inspect
 ref="${1}"
 
