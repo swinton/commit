@@ -18,10 +18,10 @@ export CONTENTFILE=$( mktemp )
 base64 -i README.md | jq --raw-input > $CONTENTFILE
 cat $CONTENTFILE
 
-payload=$( mktemp )
-jq --null-input \
-  --arg encoding "base64" \
-  --slurpfile content "$CONTENTFILE" \
-  '{"encoding": $encoding}' > $payload
+# payload=$( mktemp )
+# jq --null-input \
+#   --arg encoding "base64" \
+#   --slurpfile content "$CONTENTFILE" \
+#   '{"encoding": $encoding}' > $payload
 
-cat $payload
+# cat $payload
