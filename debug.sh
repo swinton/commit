@@ -14,9 +14,14 @@ set -e
 #   --arg branch "data" \
 #   '{"message": $message, "content": $content, "sha": $sha, "branch": $branch}' > $PAYLOADFILE
 
+export CONTENTFILE=$( mktemp )
+base64 -i README.md | jq --raw-input > $CONTENTFILE
+cat $CONTENTFILE
+
 payload=$( mktemp )
 jq --null-input \
   --arg encoding "base64" \
+  --argfile content "$CONTENTFILE" \
   '{"encoding": $encoding}' > $payload
 
 cat $payload
