@@ -18,19 +18,21 @@ jobs:
       run: |
         echo "$GITHUB_CONTEXT"
 
-    - name: Checkout
-      uses: actions/checkout@v2
-
     - name: Ensure ref exists
       continue-on-error: true
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh api /repos/:owner/:repo/git/refs \
+        gh api /repos/$GITHUB_REPOSITORY/git/refs \
           --field sha="$GITHUB_SHA" \
           --field ref="refs/heads/zen"
 
-    - name: Create zen
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: zen
+
+    - name: Update zen.txt
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
