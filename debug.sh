@@ -21,7 +21,7 @@ cat $CONTENTFILE
 payload=$( mktemp )
 jq --null-input \
   --arg encoding "base64" \
-  --argfile content "$CONTENTFILE" \
+  --slurpfile content "$CONTENTFILE" \
   '{"encoding": $encoding}' > $payload
 
 cat $payload
