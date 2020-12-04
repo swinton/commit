@@ -3,13 +3,14 @@ set -e
 
 # Path to file containing blob contents
 path="${1}"
+base64 -i "${path}"
 
 # Encode blob contents
 content=$( mktemp )
 base64 -i "${path}" | jq --raw-input '.' > $content
 cat $content
 
-# Generate payload
+# # Generate payload
 payload=$( mktemp )
 jq --null-input \
   --arg encoding "base64" \
@@ -25,5 +26,5 @@ response=$( curl --silent --request POST \
   --data @$payload )
 echo "$response"
 
-# Export environment variables with object ids
-echo BLOB_SHA=$( jq -r '.sha' <<< "${response}" ) >> $GITHUB_ENV
+# # Export environment variables with object ids
+# echo BLOB_SHA=$( jq -r '.sha' <<< "${response}" ) >> $GITHUB_ENV
