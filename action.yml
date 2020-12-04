@@ -23,24 +23,24 @@ runs:
   steps:
     # Get object ids: head commit sha, tree sha
     - shell: bash
-      run: ./inspect-ref.sh "${{ inputs.ref }}"
+      run: ${{ github.action_path }}/inspect-ref.sh "${{ inputs.ref }}"
 
     # Create blob
     - shell: bash
-      run: ./create-blob.sh "${{ inputs.path }}"
+      run: ${{ github.action_path }}/create-blob.sh "${{ inputs.path }}"
 
     # Create tree
     - shell: bash
-      run: ./create-tree.sh
+      run: ${{ github.action_path }}/create-tree.sh
 
     # Create commit
     - shell: bash
       id: commit
-      run: ./create-commit.sh "${{ inputs.commit-message }}"
+      run: ${{ github.action_path }}/create-commit.sh "${{ inputs.commit-message }}"
 
     # Update ref
     - shell: bash
-      run: ./update-ref.sh "${{ inputs.ref }}"
+      run: ${{ github.action_path }}/update-ref.sh "${{ inputs.ref }}"
 branding:
   icon: git-commit
   color: purple
