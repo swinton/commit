@@ -21,6 +21,15 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Ensure ref exists
+      continue-on-error: true
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh api /repos/:owner/:repo/git/refs \
+          --field sha="$GITHUB_SHA" \
+          --field ref="refs/heads/scratch"
+
     - name: Create file
       run: |
         dd if=/dev/urandom count=1 > myfile
@@ -33,6 +42,7 @@ jobs:
       with:
         path: ./myfile
         commit-message: Committing ./myfile
+        ref: heads/scratch
 
     - name: Inspect environment
       run: |

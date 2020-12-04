@@ -29,6 +29,7 @@ The following inputs are _required_:
 
 - `path`: Filesystem path of file to be committed, e.g. `Add ./myfile`
 - `commit-message`: Commit message to be used, e.g. `./myfile`
+- `ref`: Reference to be updated with commit, e.g. `heads/production`. This reference _must_ already exist. Defaults to 'main'.
 
 ## Outputs
 This action provides the following outputs:

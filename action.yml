@@ -7,6 +7,10 @@ inputs:
   commit-message:
     description: Commit message to be used
     required: true
+  ref:
+    description: Reference to be updated with commit. This reference must already exist. Defaults to 'main'.
+    required: false
+    default: heads/main
 outputs:
   commit-sha:
     description: SHA of created commit
@@ -30,6 +34,10 @@ runs:
     - shell: bash
       id: commit
       run: ./create-commit.sh "${{ inputs.commit-message }}"
+
+    # Update ref
+    - shell: bash
+      run: ./update-ref.sh "${{ inputs.ref }}"
 branding:
   icon: git-commit
   color: purple
