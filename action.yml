@@ -3,7 +3,7 @@ description: GitHub Action to create verified commits
 inputs:
   path:
     description: |
-      Filesystem path of file to be committed
+      Filesystem path of file to be committed, relative to root of repository
     required: true
   commit-message:
     description: |
@@ -35,7 +35,7 @@ runs:
 
     # Create tree
     - shell: bash
-      run: ${{ github.action_path }}/create-tree.sh
+      run: ${{ github.action_path }}/create-tree.sh "${{ inputs.path }}"
 
     # Create commit
     - shell: bash

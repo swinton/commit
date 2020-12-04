@@ -1,12 +1,16 @@
 #!/bin/bash
 set -e
 
+# Path to file containing blob contents
+path="${1}"
+
 # Generate payload
 payload=$( mktemp )
 jq --null-input \
+  --arg path "$path" \
   --arg blob_sha "$BLOB_SHA" \
   --arg base_tree "$BASE_TREE_SHA" \
-  '{"tree": [{"path": "extra", "mode": "100644", "type": "blob", "sha": $blob_sha}], "base_tree": $base_tree}' > $payload
+  '{"tree": [{"path": $path, "mode": "100644", "type": "blob", "sha": $blob_sha}], "base_tree": $base_tree}' > $payload
 
 # Create tree
 response=$( curl --request POST \

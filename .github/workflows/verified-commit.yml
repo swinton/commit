@@ -40,7 +40,7 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        path: ./myfile
+        path: myfile
         commit-message: Committing ./myfile
         ref: refs/heads/scratch
 

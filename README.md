@@ -28,8 +28,8 @@ Note, the `GH_TOKEN` environment variable is _required_, since commits are creat
 ## Inputs
 The following inputs are _required_:
 
-- `path`: Filesystem path of file to be committed, e.g. `Add ./myfile`
-- `commit-message`: Commit message to be used, e.g. `./myfile`
+- `path`: Filesystem path of file to be committed, relative to root of repository, e.g. `myfile`
+- `commit-message`: Commit message to be used, e.g. `Add ./myfile`
 - `ref`: Fully qualified name of reference to be updated with commit, e.g. `refs/heads/production`. This reference _must_ already exist. Defaults to the repository's default branch ref.
 
 ## Outputs
