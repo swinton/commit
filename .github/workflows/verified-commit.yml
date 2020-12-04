@@ -42,10 +42,11 @@ jobs:
       with:
         path: ./myfile
         commit-message: Committing ./myfile
-        ref: heads/scratch
+        ref: refs/heads/scratch
 
     - name: Inspect environment
       run: |
+        echo REF=$REF
         echo HEAD_SHA=$HEAD_SHA
         echo BASE_TREE_SHA=$BASE_TREE_SHA
         echo BLOB_SHA=$BLOB_SHA

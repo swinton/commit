@@ -20,7 +20,7 @@ In your workflow, to commit a file `./myfile`, include a step like this:
       with:
         path: ./myfile
         commit-message: Committing ./myfile
-        ref: heads/my-branch
+        ref: refs/heads/my-branch
 ```
 
 Note, the `GH_TOKEN` environment variable is _required_, since commits are created using GitHub's [Git Database API](https://docs.github.com/rest/reference/git).
@@ -30,7 +30,7 @@ The following inputs are _required_:
 
 - `path`: Filesystem path of file to be committed, e.g. `Add ./myfile`
 - `commit-message`: Commit message to be used, e.g. `./myfile`
-- `ref`: Reference to be updated with commit, e.g. `heads/production`. This reference _must_ already exist. Defaults to 'main'.
+- `ref`: Fully qualified name of reference to be updated with commit, e.g. `refs/heads/production`. This reference _must_ already exist. Defaults to the repository's default branch ref.
 
 ## Outputs
 This action provides the following outputs:
