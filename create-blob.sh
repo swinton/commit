@@ -12,8 +12,8 @@ base64 -i "${path}" | jq --raw-input '.' > $content
 payload=$( mktemp )
 jq --null-input \
   --arg encoding "base64" \
-  --slurpfile content "$content" \
-  '{"content": $content[0], "encoding": $encoding}' > $payload
+  --argfile content "$content" \
+  '{"content": $content, "encoding": $encoding}' > $payload
 
 # Create blob
 response=$( curl --silent --request POST \
