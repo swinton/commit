@@ -18,3 +18,7 @@ runs:
     # Create blob
     - shell: bash
       run: ./create-blob.sh "${{ inputs.path }}"
+
+    # Create tree
+    - shell: bash
+      run: ./create-tree.sh

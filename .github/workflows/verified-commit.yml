@@ -11,19 +11,30 @@ jobs:
     name: Demo
     runs-on: ubuntu-latest
     steps:
+
     - name: Context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: |
         echo "$GITHUB_CONTEXT"
+
     - name: Checkout
       uses: actions/checkout@v2
+
     - name: Create file
       run: |
         dd if=/dev/urandom count=1 > myfile
+
     - name: Commit file
       uses: ./
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         path: ./myfile
+
+    - name: Inspect environment
+      run: |
+        echo HEAD_SHA=$HEAD_SHA
+        echo BASE_TREE_SHA=$BASE_TREE_SHA
+        echo BLOB_SHA=$BLOB_SHA
+        echo TREE_SHA=$TREE_SHA

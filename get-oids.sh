@@ -25,4 +25,4 @@ response=$( gh api graphql \
 
 # Export environment variables with object ids
 echo HEAD_SHA=$( jq -r '.data.repository.defaultBranchRef.commit.oid' <<< "${response}" ) >> $GITHUB_ENV
-echo TREE_SHA=$( jq -r '.data.repository.defaultBranchRef.commit.tree.oid' <<< "${response}" ) >> $GITHUB_ENV
+echo BASE_TREE_SHA=$( jq -r '.data.repository.defaultBranchRef.commit.tree.oid' <<< "${response}" ) >> $GITHUB_ENV
