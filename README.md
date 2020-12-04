@@ -18,7 +18,7 @@ In your workflow, to commit a file `./myfile`, include a step like this:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        path: ./myfile
+        path: myfile
         commit-message: Committing ./myfile
         ref: refs/heads/my-branch
 ```
