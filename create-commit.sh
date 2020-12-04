@@ -19,8 +19,11 @@ response=$( curl --request POST \
   --header 'content-type: application/json' \
   --data @$payload )
 
+# Get SHA of commit
+commit_sha=$( jq -r '.sha' <<< "${response}" )
+
 # Export environment variables with object ids
-echo COMMIT_SHA=$( jq -r '.sha' <<< "${response}" ) >> $GITHUB_ENV
+echo "COMMIT_SHA=$commit_sha" >> $GITHUB_ENV
 
 # Set 'commit-sha' output
-echo "::set-output name=commit-sha::$COMMIT_SHA"
+echo "::set-output name=commit-sha::$commit_sha"
