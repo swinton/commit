@@ -11,10 +11,10 @@ runs:
     - shell: bash
       run: ./debug.sh
 
-    # # Get object ids: head commit sha, tree sha
-    # - shell: bash
-    #   run: ./get-oids.sh
+    # Get object ids: head commit sha, tree sha
+    - shell: bash
+      run: ./get-oids.sh
 
-    # # Create blob
-    # - shell: bash
-    #   run: ./create-blob.sh "${{ inputs.path }}"
+    # Create blob
+    - shell: bash
+      run: ./create-blob.sh "${{ inputs.path }}"

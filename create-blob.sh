@@ -6,7 +6,7 @@ path="${1}"
 
 # Encode blob contents
 content=$( mktemp )
-base64 -i "${path}" | jq --raw-input > $content
+base64 -i "${path}" | jq --raw-input '.' > $content
 
 # Generate payload
 payload=$( mktemp )
