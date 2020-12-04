@@ -46,7 +46,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         path: zen.txt
-        commit-message: Adding ./zen.txt
+        commit-message: Add zen
         ref: refs/heads/zen
 
     - name: Inspect environment
