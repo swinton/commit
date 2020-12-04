@@ -28,11 +28,14 @@ jobs:
       run: |
         gh api /repos/:owner/:repo/git/refs \
           --field sha="$GITHUB_SHA" \
-          --field ref="refs/heads/scratch"
+          --field ref="refs/heads/zen"
 
-    - name: Create file
+    - name: Create zen
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        dd if=/dev/urandom count=1 > myfile
+        echo "$( gh api zen )" >> zen.txt
+        cat zen.txt
 
     - name: Commit file
       id: commit
@@ -40,9 +43,9 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        path: myfile
-        commit-message: Committing ./myfile
-        ref: refs/heads/scratch
+        path: zen.txt
+        commit-message: Adding ./zen.txt
+        ref: refs/heads/zen
 
     - name: Inspect environment
       run: |
