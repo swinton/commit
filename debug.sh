@@ -15,7 +15,7 @@ set -e
 #   '{"message": $message, "content": $content, "sha": $sha, "branch": $branch}' > $PAYLOADFILE
 
 export CONTENTFILE=$( mktemp )
-base64 -i README.md | jq --raw-input > $CONTENTFILE
+base64 -i README.md | jq -R > $CONTENTFILE
 cat $CONTENTFILE
 
 # payload=$( mktemp )
