@@ -18,19 +18,8 @@ jobs:
       run: |
         echo "$GITHUB_CONTEXT"
 
-    - name: Ensure ref exists
-      continue-on-error: true
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        gh api /repos/$GITHUB_REPOSITORY/git/refs \
-          --field sha="$GITHUB_SHA" \
-          --field ref="refs/heads/zen"
-
     - name: Checkout
       uses: actions/checkout@v2
-      with:
-        ref: zen
 
     - name: Update zen.txt
       env:
@@ -47,7 +36,6 @@ jobs:
       with:
         path: zen.txt
         commit-message: Add zen
-        ref: refs/heads/zen
 
     - name: Inspect environment
       run: |
