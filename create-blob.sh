@@ -16,7 +16,7 @@ jq --null-input \
   '{"content": $content[0], "encoding": $encoding}' > $payload
 
 # Create blob
-response=$( curl --request POST \
+response=$( curl --silent --request POST \
   --url https://api.github.com/repos/$GITHUB_REPOSITORY/git/blobs \
   --header "authorization: Bearer $GH_TOKEN" \
   --header 'content-type: application/json' \

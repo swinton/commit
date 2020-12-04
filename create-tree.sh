@@ -13,7 +13,7 @@ jq --null-input \
   '{"tree": [{"path": $path, "mode": "100644", "type": "blob", "sha": $blob_sha}], "base_tree": $base_tree}' > $payload
 
 # Create tree
-response=$( curl --request POST \
+response=$( curl --silent --request POST \
   --url https://api.github.com/repos/$GITHUB_REPOSITORY/git/trees \
   --header "authorization: Bearer $GH_TOKEN" \
   --header 'content-type: application/json' \

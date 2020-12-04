@@ -13,7 +13,7 @@ jq --null-input \
   '{"message": $message, "tree": $tree_sha, "parents": [$parent_sha]}' > $payload
 
 # Create commit
-response=$( curl --request POST \
+response=$( curl --silent --request POST \
   --url https://api.github.com/repos/$GITHUB_REPOSITORY/git/commits \
   --header "authorization: Bearer $GH_TOKEN" \
   --header 'content-type: application/json' \

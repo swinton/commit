@@ -8,7 +8,7 @@ jq --null-input \
   '{"sha": $sha}' > $payload
 
 # Update ref
-response=$( curl --request PATCH \
+response=$( curl --silent --request PATCH \
   --url https://api.github.com/repos/$GITHUB_REPOSITORY/git/$REF \
   --header "authorization: Bearer $GH_TOKEN" \
   --header "content-type: application/json" \
