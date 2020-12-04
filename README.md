@@ -20,6 +20,7 @@ In your workflow, to commit a file `./myfile`, include a step like this:
       with:
         path: ./myfile
         commit-message: Committing ./myfile
+        ref: heads/my-branch
 ```
 
 Note, the `GH_TOKEN` environment variable is _required_, since commits are created using GitHub's [Git Database API](https://docs.github.com/rest/reference/git).
