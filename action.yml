@@ -7,6 +7,10 @@ inputs:
 runs:
   using: composite
   steps:
+    # Debug step
+    - shell: bash
+      run: ./debug.sh
+
     # Get object ids: head commit sha, tree sha
     - shell: bash
       run: ./get-oids.sh
