@@ -13,12 +13,13 @@ async function setup() {
   try {
     // Get inputs
     const paths = core.getInput('paths');
+    const baseDir = core.getInput('workspace');
     const commitMessage = core.getInput('commit-message');
     const ref = core.getInput('ref');
 
     // Expand paths to an array
-    const expandedPaths = expand(paths);
-    core.debug(`Received ${ expandedPaths.length } paths: ${ JSON.stringify(expandedPaths, null, 4) }`);
+    const expandedPaths = expand(paths, { baseDir });
+    core.debug(`Received ${ expandedPaths.length } paths: ${ expandedPaths.join(', ') }`);
 
   } catch (e) {
     core.setFailed(e);
@@ -35,12 +36,16 @@ if (require.main === require.cache[eval('__filename')]) {
 /***/ }),
 
 /***/ 361:
-/***/ ((module) => {
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-function expand(paths) {
+const { join } = __webpack_require__(622);
+
+function expand(paths, options = { baseDir: process.env.GITHUB_WORKSPACE }) {
+  const { baseDir } = options;
   return paths
     .trim()
-    .split("\n");
+    .split("\n")
+    .map(path => join(baseDir, path));
 }
 
 module.exports = expand;
