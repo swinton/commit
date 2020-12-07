@@ -20,5 +20,8 @@
   "homepage": "https://github.com/swinton/commit#readme",
   "devDependencies": {
     "@vercel/ncc": "^0.25.1"
+  },
+  "dependencies": {
+    "@actions/core": "^1.2.6"
   }
 }
