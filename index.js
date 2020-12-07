@@ -6,7 +6,7 @@ async function setup() {
   try {
     // Get inputs
     const paths = core.getInput('paths');
-    const baseDir = core.getInput('workspace');
+    const baseDir = core.getInput('workspace') || process.env.GITHUB_WORKSPACE;
     const commitMessage = core.getInput('commit-message');
     const ref = core.getInput('ref');
 
