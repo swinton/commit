@@ -3,8 +3,12 @@ description: GitHub Action to create verified commits
 inputs:
   paths:
     description: |
-      Newline-separated list of filesystems path of files to be committed, relative to root of repository
+      Newline-separated list of filesystems path of files to be committed, relative to root of repository.
     required: true
+  workspace:
+    description: |
+      Base directory containing files to be committed, defaults to the GitHub workspace directory path, $GITHUB_WORKSPACE.
+    required: false
   commit-message:
     description: |
       Commit message to be used

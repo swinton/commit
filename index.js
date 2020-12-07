@@ -6,12 +6,13 @@ async function setup() {
   try {
     // Get inputs
     const paths = core.getInput('paths');
+    const baseDir = core.getInput('workspace');
     const commitMessage = core.getInput('commit-message');
     const ref = core.getInput('ref');
 
     // Expand paths to an array
-    const expandedPaths = expand(paths);
-    core.debug(`Received ${ expandedPaths.length } paths: ${ JSON.stringify(expandedPaths, null, 4) }`);
+    const expandedPaths = expand(paths, { baseDir });
+    core.debug(`Received ${ expandedPaths.length } paths: ${ expandedPaths.join(', ') }`);
 
   } catch (e) {
     core.setFailed(e);
