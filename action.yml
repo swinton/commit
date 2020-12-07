@@ -1,9 +1,9 @@
 name: Verified commit
 description: GitHub Action to create verified commits
 inputs:
-  path:
+  paths:
     description: |
-      Filesystem path of file to be committed, relative to root of repository
+      Newline-separated list of filesystems path of files to be committed, relative to root of repository
     required: true
   commit-message:
     description: |
@@ -17,34 +17,9 @@ inputs:
 outputs:
   commit-sha:
     description: SHA of created commit
-    value: ${{ steps.commit.outputs.commit-sha }}
 runs:
-  using: composite
-  steps:
-    # Initialize
-    - shell: bash
-      run: ${{ github.action_path }}/init.sh "${{ github.action_path }}"
-
-    # Get object ids: head commit sha, tree sha
-    - shell: bash
-      run: ${{ github.action_path }}/inspect-ref.sh "${{ inputs.ref }}"
-
-    # Create blob
-    - shell: bash
-      run: ${{ github.action_path }}/create-blob.sh "${{ inputs.path }}"
-
-    # Create tree
-    - shell: bash
-      run: ${{ github.action_path }}/create-tree.sh "${{ inputs.path }}"
-
-    # Create commit
-    - shell: bash
-      id: commit
-      run: ${{ github.action_path }}/create-commit.sh "${{ inputs.commit-message }}"
-
-    # Update ref
-    - shell: bash
-      run: ${{ github.action_path }}/update-ref.sh "${{ inputs.ref }}"
+  using: node12
+  main: dist/index.js
 branding:
   icon: git-commit
   color: purple
