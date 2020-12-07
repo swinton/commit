@@ -1,0 +1,20 @@
+{
+  "name": "@swinton/commit",
+  "version": "2.0.0",
+  "description": "> :white_check_mark: Create a _verified_ commit with GitHub Actions",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/swinton/commit.git"
+  },
+  "keywords": [],
+  "author": "Steve Winton <stevewinton@gmail.com> (https://github.com/swinton)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/swinton/commit/issues"
+  },
+  "homepage": "https://github.com/swinton/commit#readme"
+}
