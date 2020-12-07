@@ -9,6 +9,7 @@ inputs:
     description: |
       Base directory containing files to be committed, defaults to the GitHub workspace directory path, $GITHUB_WORKSPACE.
     required: false
+    default: ''
   commit-message:
     description: |
       Commit message to be used
