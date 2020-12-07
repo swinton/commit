@@ -7,15 +7,16 @@ module.exports =
 
 const core = __webpack_require__(186);
 
+const getInput = __webpack_require__(657);
 const expand = __webpack_require__(361);
 
 async function setup() {
   try {
     // Get inputs
-    const paths = core.getInput('paths');
-    const baseDir = core.getInput('workspace');
-    const commitMessage = core.getInput('commit-message');
-    const ref = core.getInput('ref');
+    const paths = getInput('paths');
+    const baseDir = getInput('workspace', { default: process.env.GITHUB_WORKSPACE });
+    const commitMessage = getInput('commit-message');
+    const ref = getInput('ref');
 
     // Expand paths to an array
     const expandedPaths = expand(paths, { baseDir });
@@ -40,8 +41,9 @@ if (require.main === require.cache[eval('__filename')]) {
 
 const { join } = __webpack_require__(622);
 
-function expand(paths, options = { baseDir: process.env.GITHUB_WORKSPACE }) {
-  const { baseDir } = options;
+function expand(paths, options = {}) {
+  const defaults = { baseDir: process.env.GITHUB_WORKSPACE };
+  const { baseDir } = { ...defaults, ...options };
   return paths
     .trim()
     .split("\n")
@@ -51,6 +53,31 @@ function expand(paths, options = { baseDir: process.env.GITHUB_WORKSPACE }) {
 module.exports = expand;
 
 if (false) {}
+
+
+/***/ }),
+
+/***/ 657:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const core = __webpack_require__(186);
+
+function getInput(name, options = {}) {
+  const getInputDefaults = {
+    required: false
+  };
+  const value = core.getInput(name, { ...getInputDefaults, ...options });
+
+  if (!value && options.default) {
+    core.debug(`${ name }: ${ options.default }`);
+    return options.default;
+  }
+
+  core.debug(`${ name }: ${ value }`);
+  return value;
+}
+
+module.exports = getInput;
 
 
 /***/ }),
