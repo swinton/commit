@@ -1,9 +1,6 @@
 # Commit
 > :white_check_mark: Create a _verified_ commit with GitHub Actions
 
-## :warning: Warning
-This action is still in development and the experience is subject to change. Use at your own risk.
-
 ## About
 This action allows you to create a commit with GitHub Actions. Commits created with this actions will be marked as _verified_.
 
