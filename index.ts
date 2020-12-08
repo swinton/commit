@@ -3,7 +3,7 @@ import * as core from '@actions/core';
 import getInput from './lib/input';
 import expand from './lib/expand';
 
-export default async function setup() {
+export default async function setup() : Promise<void> {
   try {
     // Get inputs
     const paths = getInput('paths');
