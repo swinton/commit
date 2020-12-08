@@ -1,91 +1,11 @@
 module.exports =
 /******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
-
-/***/ 932:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-const core = __webpack_require__(186);
-
-const getInput = __webpack_require__(657);
-const expand = __webpack_require__(361);
-
-async function setup() {
-  try {
-    // Get inputs
-    const paths = getInput('paths');
-    const baseDir = getInput('workspace', { default: process.env.GITHUB_WORKSPACE });
-    const commitMessage = getInput('commit-message');
-    const ref = getInput('ref');
-
-    // Expand paths to an array
-    const expandedPaths = expand(paths, { baseDir });
-    core.debug(`Received ${ expandedPaths.length } paths: ${ expandedPaths.join(', ') }`);
-
-  } catch (e) {
-    core.setFailed(e);
-  }
-}
-
-module.exports = setup
-
-if (require.main === require.cache[eval('__filename')]) {
-  setup();
-}
-
-
-/***/ }),
-
-/***/ 361:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-const { join } = __webpack_require__(622);
-
-function expand(paths, options = {}) {
-  const defaults = { baseDir: process.env.GITHUB_WORKSPACE };
-  const { baseDir } = { ...defaults, ...options };
-  return paths
-    .trim()
-    .split("\n")
-    .map(path => join(baseDir, path));
-}
-
-module.exports = expand;
-
-if (false) {}
-
-
-/***/ }),
-
-/***/ 657:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-const core = __webpack_require__(186);
-
-function getInput(name, options = {}) {
-  const getInputDefaults = {
-    required: false
-  };
-  const value = core.getInput(name, { ...getInputDefaults, ...options });
-
-  if (!value && options.default) {
-    core.debug(`${ name }: ${ options.default }`);
-    return options.default;
-  }
-
-  core.debug(`${ name }: ${ value }`);
-  return value;
-}
-
-module.exports = getInput;
-
-
-/***/ }),
 
 /***/ 351:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
-"use strict";
 
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
@@ -171,7 +91,6 @@ function escapeProperty(s) {
 /***/ 186:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
-"use strict";
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -416,7 +335,6 @@ exports.getState = getState;
 /***/ 717:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
-"use strict";
 
 // For internal use, subject to change.
 var __importStar = (this && this.__importStar) || function (mod) {
@@ -452,7 +370,6 @@ exports.issueCommand = issueCommand;
 /***/ 278:
 /***/ ((__unused_webpack_module, exports) => {
 
-"use strict";
 
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -475,10 +392,84 @@ exports.toCommandValue = toCommandValue;
 
 /***/ }),
 
+/***/ 3:
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  "default": () => /* binding */ setup
+});
+
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var core = __webpack_require__(186);
+// CONCATENATED MODULE: ./lib/input.ts
+
+;
+function getInput(name, options = {}) {
+    const value = core.getInput(name, options);
+    if (!value && options.default) {
+        core.debug(`${name}: ${options.default}`);
+        return options.default;
+    }
+    core.debug(`${name}: ${value}`);
+    return value;
+}
+
+// CONCATENATED MODULE: ./lib/expand.ts
+const { join } = __webpack_require__(622);
+;
+function expand(paths, options = {}) {
+    const { baseDir } = options;
+    return paths
+        .trim()
+        .split("\n")
+        .map(path => join(baseDir, path));
+}
+
+// CONCATENATED MODULE: ./index.ts
+/* module decorator */ module = __webpack_require__.hmd(module);
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+function setup() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            // Get inputs
+            const paths = getInput('paths');
+            const baseDir = getInput('workspace', { default: process.env.GITHUB_WORKSPACE });
+            const commitMessage = getInput('commit-message');
+            const ref = getInput('ref', { default: null });
+            // Expand paths to an array
+            const expandedPaths = expand(paths, { baseDir });
+            core.debug(`Received ${expandedPaths.length} paths: ${expandedPaths.join(', ')}`);
+        }
+        catch (e) {
+            core.setFailed(e);
+        }
+    });
+}
+if (__webpack_require__.c[__webpack_require__.s] === module) {
+    setup();
+}
+
+
+/***/ }),
+
 /***/ 747:
 /***/ ((module) => {
 
-"use strict";
 module.exports = require("fs");;
 
 /***/ }),
@@ -486,7 +477,6 @@ module.exports = require("fs");;
 /***/ 87:
 /***/ ((module) => {
 
-"use strict";
 module.exports = require("os");;
 
 /***/ }),
@@ -494,7 +484,6 @@ module.exports = require("os");;
 /***/ 622:
 /***/ ((module) => {
 
-"use strict";
 module.exports = require("path");;
 
 /***/ })
@@ -512,8 +501,8 @@ module.exports = require("path");;
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
-/******/ 			// no module.id needed
-/******/ 			// no module.loaded needed
+/******/ 			id: moduleId,
+/******/ 			loaded: false,
 /******/ 			exports: {}
 /******/ 		};
 /******/ 	
@@ -526,17 +515,66 @@ module.exports = require("path");;
 /******/ 			if(threw) delete __webpack_module_cache__[moduleId];
 /******/ 		}
 /******/ 	
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+/******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = __webpack_module_cache__;
+/******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/harmony module decorator */
+/******/ 	(() => {
+/******/ 		__webpack_require__.hmd = (module) => {
+/******/ 			module = Object.create(module);
+/******/ 			if (!module.children) module.children = [];
+/******/ 			Object.defineProperty(module, 'exports', {
+/******/ 				enumerable: true,
+/******/ 				set: () => {
+/******/ 					throw new Error('ES Modules may not assign module.exports or exports.*, Use ESM export syntax, instead: ' + module.id);
+/******/ 				}
+/******/ 			});
+/******/ 			return module;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop)
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	__webpack_require__.ab = __dirname + "/";/************************************************************************/
-/******/ 	// module exports must be returned from runtime so entry inlining is disabled
+/******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(932);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })()
 ;
