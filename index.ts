@@ -3,7 +3,7 @@ import * as core from '@actions/core';
 import getInput from './lib/input';
 import expand from './lib/expand';
 
-export default async function setup() : Promise<void> {
+export default async function run() : Promise<void> {
   try {
     // Get inputs
     const paths = getInput('paths');
@@ -18,8 +18,6 @@ export default async function setup() : Promise<void> {
   } catch (e) {
     core.setFailed(e);
   }
-}
+};
 
-if (require.main === module) {
-  setup();
-}
+run();
