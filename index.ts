@@ -1,15 +1,15 @@
-const core = require('@actions/core');
+import * as core from '@actions/core';
 
-const getInput = require('./lib/input');
-const expand = require('./lib/expand');
+import getInput from './lib/input';
+import expand from './lib/expand';
 
-async function setup() {
+export default async function setup() {
   try {
     // Get inputs
     const paths = getInput('paths');
     const baseDir = getInput('workspace', { default: process.env.GITHUB_WORKSPACE });
     const commitMessage = getInput('commit-message');
-    const ref = getInput('ref');
+    const ref = getInput('ref', { default: null });
 
     // Expand paths to an array
     const expandedPaths = expand(paths, { baseDir });
@@ -19,8 +19,6 @@ async function setup() {
     core.setFailed(e);
   }
 }
-
-module.exports = setup
 
 if (require.main === module) {
   setup();

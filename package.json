@@ -2,10 +2,10 @@
   "name": "@swinton/commit",
   "version": "2.0.0",
   "description": "Create a verified commit with GitHub Actions",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "ncc build index.js -o dist"
+    "build": "ncc build index.ts -o dist"
   },
   "repository": {
     "type": "git",
@@ -19,7 +19,9 @@
   },
   "homepage": "https://github.com/swinton/commit#readme",
   "devDependencies": {
-    "@vercel/ncc": "^0.25.1"
+    "@types/node": "^14.14.10",
+    "@vercel/ncc": "^0.25.1",
+    "typescript": "^4.1.2"
   },
   "dependencies": {
     "@actions/core": "^1.2.6"
