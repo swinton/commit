@@ -19,15 +19,14 @@ export default async function run() : Promise<void> {
     core.debug(`Received ${ streams.length } stream${ streams.length === 1 ? '' : 's' }: ${ streams.map(stream => stream.path).join(', ') }`);
 
     // Create blobs using Git database API
-    const blobs = await Promise.all(streams.map(stream => {
-      github.post(`/repos/${ process.env.GITHUB_REPOSITORY }/git/blobs`, stream)
-        .then(response => {
-          return {
-            data: response.data,
-            path: stream.path
-          };
-        });
-    }));
+    let blobs: {sha: string, path: string}[] = [];
+    for await (let stream of streams) {
+      const response = await github.post(`/repos/${ process.env.GITHUB_REPOSITORY }/git/blobs`, stream);
+      blobs.push({
+        path: stream.path,
+        sha: response.data.sha
+      });
+    }
     core.debug(`Created ${ blobs.length } blob${ blobs.length === 1 ? '' : 's' }: ${ JSON.stringify(blobs, null, 4) }`);
   } catch (e) {
     core.setFailed(e);
