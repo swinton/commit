@@ -6885,11 +6885,19 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+};
 
 
 
 
 function run() {
+    var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // Get inputs
@@ -6903,15 +6911,24 @@ function run() {
             const streams = getCreateBlobRequestBodyStreams(paths, { baseDir });
             core.debug(`Received ${streams.length} stream${streams.length === 1 ? '' : 's'}: ${streams.map(stream => stream.path).join(', ')}`);
             // Create blobs using Git database API
-            const blobs = yield Promise.all(streams.map(stream => {
-                github_client.post(`/repos/${process.env.GITHUB_REPOSITORY}/git/blobs`, stream)
-                    .then(response => {
-                    return {
-                        data: response.data,
-                        path: stream.path
-                    };
-                });
-            }));
+            let blobs = [];
+            try {
+                for (var streams_1 = __asyncValues(streams), streams_1_1; streams_1_1 = yield streams_1.next(), !streams_1_1.done;) {
+                    let stream = streams_1_1.value;
+                    const response = yield github_client.post(`/repos/${process.env.GITHUB_REPOSITORY}/git/blobs`, stream);
+                    blobs.push({
+                        path: stream.path,
+                        sha: response.data.sha
+                    });
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (streams_1_1 && !streams_1_1.done && (_a = streams_1.return)) yield _a.call(streams_1);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
             core.debug(`Created ${blobs.length} blob${blobs.length === 1 ? '' : 's'}: ${JSON.stringify(blobs, null, 4)}`);
         }
         catch (e) {
@@ -6945,7 +6962,7 @@ module.exports = JSON.parse("{\"_from\":\"axios\",\"_id\":\"axios@0.21.0\",\"_in
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse("{\"name\":\"@swinton/commit\",\"version\":\"2.0.0\",\"description\":\"Create a verified commit with GitHub Actions\",\"main\":\"dist/index.js\",\"scripts\":{\"test\":\"echo \\\"Error: no test specified\\\" && exit 1\",\"build\":\"ncc build index.ts -o dist\"},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/swinton/commit.git\"},\"keywords\":[],\"author\":\"Steve Winton <stevewinton@gmail.com> (https://github.com/swinton)\",\"license\":\"ISC\",\"bugs\":{\"url\":\"https://github.com/swinton/commit/issues\"},\"homepage\":\"https://github.com/swinton/commit#readme\",\"devDependencies\":{\"@types/node\":\"^14.14.10\",\"@vercel/ncc\":\"^0.25.1\",\"typescript\":\"^4.1.2\"},\"dependencies\":{\"@actions/core\":\"^1.2.6\",\"axios\":\"^0.21.0\",\"multistream\":\"^4.0.1\"}}");
+module.exports = JSON.parse("{\"name\":\"@swinton/commit\",\"version\":\"2.0.0\",\"description\":\"Create a verified commit with GitHub Actions\",\"main\":\"dist/index.js\",\"scripts\":{\"start\":\"node dist/index.js\",\"test\":\"echo \\\"Error: no test specified\\\" && exit 1\",\"build\":\"ncc build index.ts -o dist\"},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/swinton/commit.git\"},\"keywords\":[],\"author\":\"Steve Winton <stevewinton@gmail.com> (https://github.com/swinton)\",\"license\":\"ISC\",\"bugs\":{\"url\":\"https://github.com/swinton/commit/issues\"},\"homepage\":\"https://github.com/swinton/commit#readme\",\"devDependencies\":{\"@types/node\":\"^14.14.10\",\"@vercel/ncc\":\"^0.25.1\",\"typescript\":\"^4.1.2\"},\"dependencies\":{\"@actions/core\":\"^1.2.6\",\"axios\":\"^0.21.0\",\"multistream\":\"^4.0.1\"}}");
 
 /***/ }),
 
