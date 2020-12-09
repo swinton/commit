@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 
 import getInput from './lib/input';
 import getCreateBlobRequestBodyStreams from './lib/create-blob-request-body-streams';
+import github from './lib/github-client';
 
 export default async function run() : Promise<void> {
   try {
@@ -15,7 +16,19 @@ export default async function run() : Promise<void> {
     // We will use this array to efficiently stream file contents to GitHub's
     // create blobs API
     const streams = getCreateBlobRequestBodyStreams(paths, { baseDir });
-    core.debug(`Received ${ streams.length } paths: ${ streams.join(', ') }`);
+    core.debug(`Received ${ streams.length } stream${ streams.length === 1 ? '' : 's' }: ${ streams.map(stream => stream.path).join(', ') }`);
+
+    // Create blobs using Git database API
+    const blobs = await Promise.all(streams.map(stream => {
+      github.post(`/repos/${ process.env.GITHUB_REPOSITORY }/git/blobs`, stream)
+        .then(response => {
+          return {
+            data: response.data,
+            path: stream.path
+          };
+        });
+    }));
+    core.debug(`Created ${ blobs.length } blob${ blobs.length === 1 ? '' : 's' }: ${ JSON.stringify(blobs, null, 4) }`);
   } catch (e) {
     core.setFailed(e);
   }

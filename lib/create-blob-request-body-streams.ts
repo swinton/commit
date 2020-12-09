@@ -26,12 +26,16 @@ const base64Transformer = new Transform({
  * See: https://docs.github.com/rest/reference/git#create-a-blob
  */
 export class CreateBlobRequestBodyStream extends MultiStream {
+  readonly path: string;
+
   constructor(path, opts = {}) {
     super([
       Readable.from('{"encoding":"base64","content":"'),
       fs.createReadStream(path).pipe(base64Transformer),
       Readable.from('"}')
     ], opts)
+
+    this.path = path;
   }
 }
 

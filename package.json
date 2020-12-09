@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@actions/core": "^1.2.6",
+    "axios": "^0.21.0",
     "multistream": "^4.0.1"
   }
 }
