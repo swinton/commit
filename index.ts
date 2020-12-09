@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 
 import getInput from './lib/input';
-import expand from './lib/expand';
+import getCreateBlobRequestBodyStreams from './lib/create-blob-request-body-streams';
 
 export default async function run() : Promise<void> {
   try {
@@ -11,10 +11,11 @@ export default async function run() : Promise<void> {
     const commitMessage = getInput('commit-message');
     const ref = getInput('ref', { default: null });
 
-    // Expand paths to an array
-    const expandedPaths = expand(paths, { baseDir });
-    core.debug(`Received ${ expandedPaths.length } paths: ${ expandedPaths.join(', ') }`);
-
+    // Expand paths to an array of 'create blob request body' streams
+    // We will use this array to efficiently stream file contents to GitHub's
+    // create blobs API
+    const streams = getCreateBlobRequestBodyStreams(paths, { baseDir });
+    core.debug(`Received ${ streams.length } paths: ${ streams.join(', ') }`);
   } catch (e) {
     core.setFailed(e);
   }
