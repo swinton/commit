@@ -1,6 +1,8 @@
 # Commit
 > :white_check_mark: Create a _verified_ commit with GitHub Actions
 
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+
 ## About
 This action allows you to create a commit with GitHub Actions. Commits created with this actions will be marked as _verified_.
 

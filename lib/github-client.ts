@@ -1,14 +1,15 @@
-import axios from 'axios';
+import axios from "axios";
 
-const pkg = require('../package');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const pkg = require("../package");
 
 const github = axios.create({
   baseURL: `https://api.github.com/`,
   headers: {
     accept: `application/vnd.github.v3+json`,
-    authorization: `bearer ${ process.env.GH_TOKEN }`,
-    'user-agent': `${ pkg.name }/${ pkg.version }`
-  }
+    authorization: `bearer ${process.env.GH_TOKEN}`,
+    "user-agent": `${pkg.name}/${pkg.version}`,
+  },
 });
 
 export default github;
