@@ -1,35 +1,35 @@
 import * as core from "@actions/core";
 
 import getInput from "./lib/input";
+import { Repo } from "./lib/repo";
 import { getBlobsFromFiles } from "./lib/blob";
-import github from "./lib/github-client";
+import { Tree } from "./lib/tree";
 
 export default async function run(): Promise<void> {
   try {
+    // Get repo
+    const repo = new Repo(process.env.GITHUB_REPOSITORY);
+    await repo.load();
+
     // Get inputs
     const files = getInput("files");
     const baseDir = getInput("workspace", {
       default: process.env.GITHUB_WORKSPACE,
     });
     const commitMessage = getInput("commit-message");
-    const ref = getInput("ref", { default: null });
+    const ref = getInput("ref", { default: repo.defaultBranchRef });
 
     // Expand files to an array of "blobs", which will be created on GitHub via the create blob API
-    const blobs = getBlobsFromFiles(files, { baseDir });
+    const blobs = getBlobsFromFiles(repo, files, { baseDir });
     core.debug(
       `Received ${blobs.length} blob${
         blobs.length === 1 ? "" : "s"
       }: ${blobs.map((blob) => blob.absoluteFilePath).join(", ")}`
     );
 
-    // Save all the blobs, on GitHub
-    for await (const blob of blobs) {
-      await blob.save();
-    }
-
-    // TODO
-    // Create tree
-    // Via: POST https://api.github.com/repos/$GITHUB_REPOSITORY/git/trees
+    // Create a tree
+    const tree: Tree = new Tree(repo, blobs);
+    await tree.save();
 
     // TODO
     // Create commit

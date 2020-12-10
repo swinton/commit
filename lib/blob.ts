@@ -4,6 +4,7 @@ import { join } from "path";
 import * as core from "@actions/core";
 import * as MultiStream from "multistream";
 import Resource from "./resource";
+import { Repo } from "./repo";
 
 /**
  * Encodes chunks in a stream to base64
@@ -16,11 +17,16 @@ const base64Transformer = new Transform({
 });
 
 export class Blob extends Resource {
+  readonly type: string = "blob";
   readonly absoluteFilePath: string;
   readonly mode: string;
   sha: string;
 
-  constructor(readonly baseDir: string, readonly file: string) {
+  constructor(
+    readonly repo: Repo,
+    readonly baseDir: string,
+    readonly file: string
+  ) {
     super();
     this.absoluteFilePath = join(baseDir, file);
     // Reject files that don't exist
@@ -55,7 +61,7 @@ export class Blob extends Resource {
 
   async save(): Promise<void> {
     const response = await this.github.post(
-      `/repos/${process.env.GITHUB_REPOSITORY}/git/blobs`,
+      `/repos/${this.repo.nameWithOwner}/git/blobs`,
       this.stream
     );
     this.sha = response.data.sha;
@@ -69,6 +75,7 @@ export interface Options {
 }
 
 export function getBlobsFromFiles(
+  repo: Repo,
   files: string,
   options: Options = {}
 ): Blob[] {
@@ -76,5 +83,5 @@ export function getBlobsFromFiles(
   return files
     .trim()
     .split("\n")
-    .map((file) => new Blob(baseDir, file));
+    .map((file) => new Blob(repo, baseDir, file));
 }
