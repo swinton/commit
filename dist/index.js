@@ -7939,7 +7939,7 @@ module.exports = __webpack_require__(1669).deprecate;
 
 /***/ }),
 
-/***/ 130:
+/***/ 9598:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -7965,14 +7965,6 @@ function getInput(name, options = {}) {
     return value;
 }
 
-// EXTERNAL MODULE: external "fs"
-var external_fs_ = __webpack_require__(5747);
-// EXTERNAL MODULE: external "stream"
-var external_stream_ = __webpack_require__(2413);
-// EXTERNAL MODULE: external "path"
-var external_path_ = __webpack_require__(5622);
-// EXTERNAL MODULE: ./node_modules/multistream/index.js
-var multistream = __webpack_require__(7999);
 // EXTERNAL MODULE: ./node_modules/axios/index.js
 var axios = __webpack_require__(6545);
 var axios_default = /*#__PURE__*/__webpack_require__.n(axios);
@@ -7999,8 +7991,45 @@ class Resource {
     }
 }
 
-// CONCATENATED MODULE: ./lib/blob.ts
+// CONCATENATED MODULE: ./lib/repo.ts
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+class Repo extends Resource {
+    constructor(nameWithOwner) {
+        super();
+        this.nameWithOwner = nameWithOwner;
+    }
+    save() {
+        return __awaiter(this, void 0, void 0, function* () {
+            throw new Error("Not implemented");
+        });
+    }
+    load() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.github.get(`/repos/${this.nameWithOwner}`);
+            this.defaultBranchRef = response.data.default_branch;
+        });
+    }
+}
+
+// EXTERNAL MODULE: external "fs"
+var external_fs_ = __webpack_require__(5747);
+// EXTERNAL MODULE: external "stream"
+var external_stream_ = __webpack_require__(2413);
+// EXTERNAL MODULE: external "path"
+var external_path_ = __webpack_require__(5622);
+// EXTERNAL MODULE: ./node_modules/multistream/index.js
+var multistream = __webpack_require__(7999);
+// CONCATENATED MODULE: ./lib/blob.ts
+var blob_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -8025,15 +8054,19 @@ const base64Transformer = new external_stream_.Transform({
     },
 });
 class Blob extends Resource {
-    constructor(baseDir, file) {
+    constructor(repo, baseDir, file) {
         super();
+        this.repo = repo;
         this.baseDir = baseDir;
         this.file = file;
+        this.type = "blob";
         this.absoluteFilePath = (0,external_path_.join)(baseDir, file);
         // Reject files that don't exist
         if (!external_fs_.existsSync(this.absoluteFilePath)) {
             throw new Error(`File does not exist: ${this.absoluteFilePath}.`);
         }
+        // Set the file's mode, this should be represented as an octal string
+        this.mode = external_fs_.statSync(this.absoluteFilePath).mode.toString(8);
     }
     /**
      * Produces a stream that conforms to the shape expected
@@ -8057,23 +8090,23 @@ class Blob extends Resource {
         ]);
     }
     save() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.github.post(`/repos/${process.env.GITHUB_REPOSITORY}/git/blobs`, this.stream);
+        return blob_awaiter(this, void 0, void 0, function* () {
+            const response = yield this.github.post(`/repos/${this.repo.nameWithOwner}/git/blobs`, this.stream);
             this.sha = response.data.sha;
             core.debug(`Sha for blob ${this.file}: ${this.sha}.`);
         });
     }
 }
-function getBlobsFromFiles(files, options = {}) {
+function getBlobsFromFiles(repo, files, options = {}) {
     const { baseDir } = options;
     return files
         .trim()
         .split("\n")
-        .map((file) => new Blob(baseDir, file));
+        .map((file) => new Blob(repo, baseDir, file));
 }
 
-// CONCATENATED MODULE: ./index.ts
-var index_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+// CONCATENATED MODULE: ./lib/tree.ts
+var tree_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -8090,39 +8123,66 @@ var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
 
-
-
-function run() {
-    var e_1, _a;
-    return index_awaiter(this, void 0, void 0, function* () {
-        try {
-            // Get inputs
-            const files = getInput("files");
-            const baseDir = getInput("workspace", {
-                default: process.env.GITHUB_WORKSPACE,
-            });
-            const commitMessage = getInput("commit-message");
-            const ref = getInput("ref", { default: null });
-            // Expand files to an array of "blobs", which will be created on GitHub via the create blob API
-            const blobs = getBlobsFromFiles(files, { baseDir });
-            core.debug(`Received ${blobs.length} blob${blobs.length === 1 ? "" : "s"}: ${blobs.map((blob) => blob.absoluteFilePath).join(", ")}`);
+class Tree extends Resource {
+    constructor(repo, blobs) {
+        super();
+        this.blobs = blobs;
+    }
+    save() {
+        var e_1, _a;
+        return tree_awaiter(this, void 0, void 0, function* () {
             try {
-                // Save all the blobs, on GitHub
-                for (var blobs_1 = __asyncValues(blobs), blobs_1_1; blobs_1_1 = yield blobs_1.next(), !blobs_1_1.done;) {
-                    const blob = blobs_1_1.value;
+                // Save all the blobs
+                for (var _b = __asyncValues(this.blobs), _c; _c = yield _b.next(), !_c.done;) {
+                    const blob = _c.value;
                     yield blob.save();
                 }
             }
             catch (e_1_1) { e_1 = { error: e_1_1 }; }
             finally {
                 try {
-                    if (blobs_1_1 && !blobs_1_1.done && (_a = blobs_1.return)) yield _a.call(blobs_1);
+                    if (_c && !_c.done && (_a = _b.return)) yield _a.call(_b);
                 }
                 finally { if (e_1) throw e_1.error; }
             }
-            // TODO
-            // Create tree
-            // Via: POST https://api.github.com/repos/$GITHUB_REPOSITORY/git/trees
+        });
+    }
+}
+
+// CONCATENATED MODULE: ./index.ts
+var index_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+function run() {
+    return index_awaiter(this, void 0, void 0, function* () {
+        try {
+            // Get repo
+            const repo = new Repo(process.env.GITHUB_REPOSITORY);
+            yield repo.load();
+            // Get inputs
+            const files = getInput("files");
+            const baseDir = getInput("workspace", {
+                default: process.env.GITHUB_WORKSPACE,
+            });
+            const commitMessage = getInput("commit-message");
+            const ref = getInput("ref", { default: repo.defaultBranchRef });
+            // Expand files to an array of "blobs", which will be created on GitHub via the create blob API
+            const blobs = getBlobsFromFiles(repo, files, { baseDir });
+            core.debug(`Received ${blobs.length} blob${blobs.length === 1 ? "" : "s"}: ${blobs.map((blob) => blob.absoluteFilePath).join(", ")}`);
+            // Create a tree
+            const tree = new Tree(repo, blobs);
+            yield tree.save();
             // TODO
             // Create commit
             // Via: POST https://api.github.com/repos/$GITHUB_REPOSITORY/git/commits
@@ -8338,6 +8398,6 @@ module.exports = require("zlib");;
 /******/ 	// module exports must be returned from runtime so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(130);
+/******/ 	return __webpack_require__(9598);
 /******/ })()
 ;
