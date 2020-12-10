@@ -17,7 +17,7 @@ In your workflow, to commit a file `./myfile`, include a step like this:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        paths: |
+        files: |
           myfile
         commit-message: Committing ./myfile
         ref: refs/heads/my-branch
@@ -25,7 +25,7 @@ In your workflow, to commit a file `./myfile`, include a step like this:
 
 Note, the `GH_TOKEN` environment variable is _required_, since commits are created using GitHub's [Git Database API](https://docs.github.com/rest/reference/git).
 
-To commit multiple files in a single commit, pass each file on a newline to the `paths` input:
+To commit multiple files in a single commit, pass each file on a newline to the `files` input:
 
 ```yaml
     - name: Commit files
@@ -33,7 +33,7 @@ To commit multiple files in a single commit, pass each file on a newline to the 
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        paths: |
+        files: |
           path/to/myfile1
           path/to/myfile2
           path/to/myfile3
@@ -44,7 +44,7 @@ To commit multiple files in a single commit, pass each file on a newline to the 
 ## Inputs
 The following inputs are _required_:
 
-- `paths`: Newline-separated list of filesystems path of files to be committed, relative to root of repository, e.g. <pre>myfile1<br>myfile2<br>...<br>myfileN</pre>
+- `files`: Newline-separated list of files to be committed, relative to root of repository, e.g. <pre>myfile1<br>myfile2<br>...<br>myfileN</pre>
 - `commit-message`: Commit message to be used, e.g. `Add ./myfile`
 - `ref`: Fully qualified name of reference to be updated with commit, e.g. `refs/heads/production`. This reference _must_ already exist. Defaults to the repository's default branch ref.
 

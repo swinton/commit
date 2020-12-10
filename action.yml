@@ -1,9 +1,9 @@
 name: Verified commit
 description: GitHub Action to create verified commits
 inputs:
-  paths:
+  files:
     description: |
-      Newline-separated list of filesystems path of files to be committed, relative to root of repository.
+      Newline-separated list of files to be committed, relative to root of repository.
     required: true
   workspace:
     description: |

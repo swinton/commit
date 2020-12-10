@@ -7,21 +7,21 @@ import github from "./lib/github-client";
 export default async function run(): Promise<void> {
   try {
     // Get inputs
-    const paths = getInput("paths");
+    const files = getInput("files");
     const baseDir = getInput("workspace", {
       default: process.env.GITHUB_WORKSPACE,
     });
     const commitMessage = getInput("commit-message");
     const ref = getInput("ref", { default: null });
 
-    // Expand paths to an array of 'create blob request body' streams
+    // Expand files to an array of 'create blob request body' streams
     // We will use this array to efficiently stream file contents to GitHub's
     // create blobs API
-    const streams = getCreateBlobRequestBodyStreams(paths, { baseDir });
+    const streams = getCreateBlobRequestBodyStreams(files, { baseDir });
     core.debug(
       `Received ${streams.length} stream${
         streams.length === 1 ? "" : "s"
-      }: ${streams.map((stream) => stream.path).join(", ")}`
+      }: ${streams.map((stream) => stream.absoluteFilePath).join(", ")}`
     );
 
     // Create blobs using Git database API
@@ -32,7 +32,7 @@ export default async function run(): Promise<void> {
         stream
       );
       blobs.push({
-        path: stream.path,
+        path: stream.absoluteFilePath,
         sha: response.data.sha,
       });
     }

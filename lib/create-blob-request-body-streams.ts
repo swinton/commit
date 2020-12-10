@@ -26,38 +26,38 @@ const base64Transformer = new Transform({
  * See: https://docs.github.com/rest/reference/git#create-a-blob
  */
 export class CreateBlobRequestBodyStream extends MultiStream {
-  readonly path: string;
+  readonly absoluteFilePath: string;
 
-  constructor(path: string, opts = {}) {
+  constructor(absoluteFilePath: string, opts = {}) {
     // Produces the JSON body as a stream, so that we don't have to read (
     // potentially very large) files into memory
     super(
       [
         Readable.from('{"encoding":"base64","content":"'),
-        fs.createReadStream(path).pipe(base64Transformer),
+        fs.createReadStream(absoluteFilePath).pipe(base64Transformer),
         Readable.from('"}'),
       ],
       opts
     );
 
-    this.path = path;
+    this.absoluteFilePath = absoluteFilePath;
   }
 }
 
 export interface Options {
-  /** Optional. Default base dir to use when expanding a set of paths. */
+  /** Optional. Default base dir to use when expanding a set of files. */
   baseDir?: string;
 }
 
 export default function getCreateBlobRequestBodyStreams(
-  paths: string,
+  files: string,
   options: Options = {}
 ): Array<CreateBlobRequestBodyStream> {
   const { baseDir } = options;
-  return paths
+  return files
     .trim()
     .split("\n")
-    .map((path) => join(baseDir, path))
-    .filter((path) => fs.existsSync(path))
-    .map((path) => new CreateBlobRequestBodyStream(path));
+    .map((file) => join(baseDir, file))
+    .filter((file) => fs.existsSync(file))
+    .map((file) => new CreateBlobRequestBodyStream(file));
 }
