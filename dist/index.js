@@ -8000,25 +8000,25 @@ const base64Transformer = new external_stream_.Transform({
  * See: https://docs.github.com/rest/reference/git#create-a-blob
  */
 class CreateBlobRequestBodyStream extends multistream {
-    constructor(path, opts = {}) {
+    constructor(absoluteFilePath, opts = {}) {
         // Produces the JSON body as a stream, so that we don't have to read (
         // potentially very large) files into memory
         super([
             external_stream_.Readable.from('{"encoding":"base64","content":"'),
-            external_fs_.createReadStream(path).pipe(base64Transformer),
+            external_fs_.createReadStream(absoluteFilePath).pipe(base64Transformer),
             external_stream_.Readable.from('"}'),
         ], opts);
-        this.path = path;
+        this.absoluteFilePath = absoluteFilePath;
     }
 }
-function getCreateBlobRequestBodyStreams(paths, options = {}) {
+function getCreateBlobRequestBodyStreams(files, options = {}) {
     const { baseDir } = options;
-    return paths
+    return files
         .trim()
         .split("\n")
-        .map((path) => (0,external_path_.join)(baseDir, path))
-        .filter((path) => external_fs_.existsSync(path))
-        .map((path) => new CreateBlobRequestBodyStream(path));
+        .map((file) => (0,external_path_.join)(baseDir, file))
+        .filter((file) => external_fs_.existsSync(file))
+        .map((file) => new CreateBlobRequestBodyStream(file));
 }
 
 // EXTERNAL MODULE: ./node_modules/axios/index.js
@@ -8065,17 +8065,17 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // Get inputs
-            const paths = getInput("paths");
+            const files = getInput("files");
             const baseDir = getInput("workspace", {
                 default: process.env.GITHUB_WORKSPACE,
             });
             const commitMessage = getInput("commit-message");
             const ref = getInput("ref", { default: null });
-            // Expand paths to an array of 'create blob request body' streams
+            // Expand files to an array of 'create blob request body' streams
             // We will use this array to efficiently stream file contents to GitHub's
             // create blobs API
-            const streams = getCreateBlobRequestBodyStreams(paths, { baseDir });
-            core.debug(`Received ${streams.length} stream${streams.length === 1 ? "" : "s"}: ${streams.map((stream) => stream.path).join(", ")}`);
+            const streams = getCreateBlobRequestBodyStreams(files, { baseDir });
+            core.debug(`Received ${streams.length} stream${streams.length === 1 ? "" : "s"}: ${streams.map((stream) => stream.absoluteFilePath).join(", ")}`);
             // Create blobs using Git database API
             const blobs = [];
             try {
@@ -8083,7 +8083,7 @@ function run() {
                     const stream = streams_1_1.value;
                     const response = yield github_client.post(`/repos/${process.env.GITHUB_REPOSITORY}/git/blobs`, stream);
                     blobs.push({
-                        path: stream.path,
+                        path: stream.absoluteFilePath,
                         sha: response.data.sha,
                     });
                 }
