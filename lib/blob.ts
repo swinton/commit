@@ -17,6 +17,7 @@ const base64Transformer = new Transform({
 
 export class Blob extends Resource {
   readonly absoluteFilePath: string;
+  readonly mode: string;
   sha: string;
 
   constructor(readonly baseDir: string, readonly file: string) {
@@ -26,6 +27,8 @@ export class Blob extends Resource {
     if (!fs.existsSync(this.absoluteFilePath)) {
       throw new Error(`File does not exist: ${this.absoluteFilePath}.`);
     }
+    // Set the file's mode, this should be represented as an octal string
+    this.mode = fs.statSync(this.absoluteFilePath).mode.toString(8);
   }
 
   /**
