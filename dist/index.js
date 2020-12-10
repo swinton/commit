@@ -7939,7 +7939,7 @@ module.exports = __webpack_require__(1669).deprecate;
 
 /***/ }),
 
-/***/ 345:
+/***/ 130:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -7973,54 +7973,6 @@ var external_stream_ = __webpack_require__(2413);
 var external_path_ = __webpack_require__(5622);
 // EXTERNAL MODULE: ./node_modules/multistream/index.js
 var multistream = __webpack_require__(7999);
-// CONCATENATED MODULE: ./lib/create-blob-request-body-streams.ts
-
-
-
-
-/**
- * Encodes chunks in a stream to base64
- */
-const base64Transformer = new external_stream_.Transform({
-    transform(chunk, encoding, callback) {
-        this.push(chunk.toString("base64"));
-        callback();
-    },
-});
-/**
- * Produces a stream that conforms to the shape expected
- * by the POST /repos/{owner}/{repo}/git/blobs GitHub API
- *
- * For example, streams produced by this class will resolve to a shape like:
- *  {
- *    "encoding": "base64",
- *    "content": "SGFsZiBtZWFzdXJlcyBhcmUgYXMgYmFkIGFzIG5vdGhpbmcgYXQgYWxsLg=="
- *  }
- *
- * See: https://docs.github.com/rest/reference/git#create-a-blob
- */
-class CreateBlobRequestBodyStream extends multistream {
-    constructor(absoluteFilePath, opts = {}) {
-        // Produces the JSON body as a stream, so that we don't have to read (
-        // potentially very large) files into memory
-        super([
-            external_stream_.Readable.from('{"encoding":"base64","content":"'),
-            external_fs_.createReadStream(absoluteFilePath).pipe(base64Transformer),
-            external_stream_.Readable.from('"}'),
-        ], opts);
-        this.absoluteFilePath = absoluteFilePath;
-    }
-}
-function getCreateBlobRequestBodyStreams(files, options = {}) {
-    const { baseDir } = options;
-    return files
-        .trim()
-        .split("\n")
-        .map((file) => (0,external_path_.join)(baseDir, file))
-        .filter((file) => external_fs_.existsSync(file))
-        .map((file) => new CreateBlobRequestBodyStream(file));
-}
-
 // EXTERNAL MODULE: ./node_modules/axios/index.js
 var axios = __webpack_require__(6545);
 var axios_default = /*#__PURE__*/__webpack_require__.n(axios);
@@ -8039,8 +7991,89 @@ const github = axios_default().create({
 });
 /* harmony default export */ const github_client = (github);
 
-// CONCATENATED MODULE: ./index.ts
+// CONCATENATED MODULE: ./lib/resource.ts
+
+class Resource {
+    constructor() {
+        this.github = github_client;
+    }
+}
+
+// CONCATENATED MODULE: ./lib/blob.ts
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+/**
+ * Encodes chunks in a stream to base64
+ */
+const base64Transformer = new external_stream_.Transform({
+    transform(chunk, encoding, callback) {
+        this.push(chunk.toString("base64"));
+        callback();
+    },
+});
+class Blob extends Resource {
+    constructor(baseDir, file) {
+        super();
+        this.baseDir = baseDir;
+        this.file = file;
+        this.absoluteFilePath = (0,external_path_.join)(baseDir, file);
+        // Reject files that don't exist
+        if (!external_fs_.existsSync(this.absoluteFilePath)) {
+            throw new Error(`File does not exist: ${this.absoluteFilePath}.`);
+        }
+    }
+    /**
+     * Produces a stream that conforms to the shape expected
+     * by the POST /repos/{owner}/{repo}/git/blobs GitHub API
+     *
+     * For example, streams produced by this class will resolve to a shape like:
+     *  {
+     *    "encoding": "base64",
+     *    "content": "SGFsZiBtZWFzdXJlcyBhcmUgYXMgYmFkIGFzIG5vdGhpbmcgYXQgYWxsLg=="
+     *  }
+     *
+     * See: https://docs.github.com/rest/reference/git#create-a-blob
+     */
+    get stream() {
+        // Produces the JSON body as a stream, so that we don't have to read (
+        // potentially very large) files into memory
+        return new multistream([
+            external_stream_.Readable.from('{"encoding":"base64","content":"'),
+            external_fs_.createReadStream(this.absoluteFilePath).pipe(base64Transformer),
+            external_stream_.Readable.from('"}'),
+        ]);
+    }
+    save() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.github.post(`/repos/${process.env.GITHUB_REPOSITORY}/git/blobs`, this.stream);
+            this.sha = response.data.sha;
+            core.debug(`Sha for blob ${this.file}: ${this.sha}.`);
+        });
+    }
+}
+function getBlobsFromFiles(files, options = {}) {
+    const { baseDir } = options;
+    return files
+        .trim()
+        .split("\n")
+        .map((file) => new Blob(baseDir, file));
+}
+
+// CONCATENATED MODULE: ./index.ts
+var index_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -8059,10 +8092,9 @@ var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
 
 
 
-
 function run() {
     var e_1, _a;
-    return __awaiter(this, void 0, void 0, function* () {
+    return index_awaiter(this, void 0, void 0, function* () {
         try {
             // Get inputs
             const files = getInput("files");
@@ -8071,31 +8103,23 @@ function run() {
             });
             const commitMessage = getInput("commit-message");
             const ref = getInput("ref", { default: null });
-            // Expand files to an array of 'create blob request body' streams
-            // We will use this array to efficiently stream file contents to GitHub's
-            // create blobs API
-            const streams = getCreateBlobRequestBodyStreams(files, { baseDir });
-            core.debug(`Received ${streams.length} stream${streams.length === 1 ? "" : "s"}: ${streams.map((stream) => stream.absoluteFilePath).join(", ")}`);
-            // Create blobs using Git database API
-            const blobs = [];
+            // Expand files to an array of "blobs", which will be created on GitHub via the create blob API
+            const blobs = getBlobsFromFiles(files, { baseDir });
+            core.debug(`Received ${blobs.length} blob${blobs.length === 1 ? "" : "s"}: ${blobs.map((blob) => blob.absoluteFilePath).join(", ")}`);
             try {
-                for (var streams_1 = __asyncValues(streams), streams_1_1; streams_1_1 = yield streams_1.next(), !streams_1_1.done;) {
-                    const stream = streams_1_1.value;
-                    const response = yield github_client.post(`/repos/${process.env.GITHUB_REPOSITORY}/git/blobs`, stream);
-                    blobs.push({
-                        path: stream.absoluteFilePath,
-                        sha: response.data.sha,
-                    });
+                // Save all the blobs, on GitHub
+                for (var blobs_1 = __asyncValues(blobs), blobs_1_1; blobs_1_1 = yield blobs_1.next(), !blobs_1_1.done;) {
+                    const blob = blobs_1_1.value;
+                    yield blob.save();
                 }
             }
             catch (e_1_1) { e_1 = { error: e_1_1 }; }
             finally {
                 try {
-                    if (streams_1_1 && !streams_1_1.done && (_a = streams_1.return)) yield _a.call(streams_1);
+                    if (blobs_1_1 && !blobs_1_1.done && (_a = blobs_1.return)) yield _a.call(blobs_1);
                 }
                 finally { if (e_1) throw e_1.error; }
             }
-            core.debug(`Created ${blobs.length} blob${blobs.length === 1 ? "" : "s"}: ${JSON.stringify(blobs, null, 4)}`);
             // TODO
             // Create tree
             // Via: POST https://api.github.com/repos/$GITHUB_REPOSITORY/git/trees
@@ -8314,6 +8338,6 @@ module.exports = require("zlib");;
 /******/ 	// module exports must be returned from runtime so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(345);
+/******/ 	return __webpack_require__(130);
 /******/ })()
 ;
