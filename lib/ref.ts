@@ -2,10 +2,11 @@ import Resource from "./resource";
 import { Repo } from "./repo";
 
 export class Ref extends Resource {
-  private prefix: string;
-  private name: string;
-  private commitOid: string;
-  private treeOid: string;
+  prefix: string;
+  name: string;
+  commitOid: string;
+  treeOid: string;
+
   constructor(readonly repo: Repo, readonly ref: string) {
     super();
   }

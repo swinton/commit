@@ -35,7 +35,7 @@ export default async function run(): Promise<void> {
     );
 
     // Create a tree
-    const tree: Tree = new Tree(repo, blobs);
+    const tree: Tree = new Tree(repo, blobs, ref.treeOid);
     await tree.save();
 
     // TODO

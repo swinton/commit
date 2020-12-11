@@ -58,6 +58,10 @@ export class Blob extends Resource {
     ]);
   }
 
+  get path(): string {
+    return this.file;
+  }
+
   async save(): Promise<void> {
     const response = await this.github.post(
       `/repos/${this.repo.nameWithOwner}/git/blobs`,
