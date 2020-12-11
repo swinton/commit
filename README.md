@@ -13,7 +13,7 @@ In your workflow, to commit a file `./myfile`, include a step like this:
 
 ```yaml
     - name: Commit file
-      uses: swinton/commit@v2
+      uses: swinton/commit@v2.x
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -29,7 +29,7 @@ To commit multiple files in a single commit, pass each file on a newline to the 
 
 ```yaml
     - name: Commit files
-      uses: swinton/commit@v2
+      uses: swinton/commit@v2.x
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
