@@ -1,7 +1,6 @@
 import * as fs from "fs";
 import { Readable, Transform } from "stream";
 import { join } from "path";
-import * as core from "@actions/core";
 import * as MultiStream from "multistream";
 import Resource from "./resource";
 import { Repo } from "./repo";
@@ -65,7 +64,7 @@ export class Blob extends Resource {
       this.stream
     );
     this.sha = response.data.sha;
-    core.debug(`Sha for blob ${this.file}: ${this.sha}.`);
+    this.debug(`Sha for blob ${this.file}: ${this.sha}.`);
   }
 }
 
