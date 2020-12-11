@@ -2,6 +2,7 @@ import * as core from "@actions/core";
 
 import getInput from "./lib/input";
 import { Repo } from "./lib/repo";
+import { Ref } from "./lib/ref";
 import { getBlobsFromFiles } from "./lib/blob";
 import { Tree } from "./lib/tree";
 
@@ -17,7 +18,13 @@ export default async function run(): Promise<void> {
       default: process.env.GITHUB_WORKSPACE,
     });
     const commitMessage = getInput("commit-message");
-    const ref = getInput("ref", { default: repo.defaultBranchRef });
+
+    // Load ref details
+    const ref = new Ref(
+      repo,
+      getInput("ref", { default: repo.defaultBranchRef })
+    );
+    await ref.load();
 
     // Expand files to an array of "blobs", which will be created on GitHub via the create blob API
     const blobs = getBlobsFromFiles(repo, files, { baseDir });

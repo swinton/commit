@@ -1,9 +1,14 @@
 import Resource from "./resource";
 
 export class Repo extends Resource {
+  readonly owner: string;
+  readonly name: string;
   defaultBranchRef: string;
   constructor(readonly nameWithOwner: string) {
     super();
+    const [owner, name] = this.nameWithOwner.split("/");
+    this.owner = owner;
+    this.name = name;
   }
 
   async save(): Promise<void> {

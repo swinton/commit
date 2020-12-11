@@ -16,5 +16,16 @@ export default abstract class Resource implements Saveable {
     this.github = github;
   }
 
+  protected graphql(
+    query: string,
+    variables: Record<string, unknown>
+  ): Promise<AxiosResponse<unknown>> {
+    const body: Record<string, unknown> = {
+      query,
+      variables,
+    };
+    return this.github.post(`/graphql`, body);
+  }
+
   abstract save(): Promise<void>;
 }
