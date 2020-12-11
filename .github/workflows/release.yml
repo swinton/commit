@@ -1,0 +1,33 @@
+name: release v2
+on:
+  push:
+    branches:
+      - main
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure v2.x exists
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          export SHA=$( gh api \
+            /repos/$GITHUB_REPOSITORY/git/refs/heads/main \
+            | jq --raw-output '.object.sha' )
+          gh api /repos/$GITHUB_REPOSITORY/git/refs \
+            --field sha="$SHA" \
+            --field ref="refs/heads/v2.x"
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            dist/index.js
+          commit-message: Add dist/index.js
+          ref: refs/heads/v2.x
