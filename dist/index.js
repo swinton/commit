@@ -8082,6 +8082,13 @@ class Ref extends Resource {
             this.debug(`Ref: ${this.fullyQualifiedName}, prefix: ${this.prefix}, commitOid: ${this.commitOid}, treeOid: ${this.treeOid}`);
         });
     }
+    update(sha) {
+        return ref_awaiter(this, void 0, void 0, function* () {
+            // Update ref
+            // Via: PATCH https://api.github.com/repos/$GITHUB_REPOSITORY/git/$REF
+            yield this.github.patch(`/repos/${this.repo.nameWithOwner}/git/${this.fullyQualifiedName}`, { sha });
+        });
+    }
 }
 
 // EXTERNAL MODULE: external "fs"
@@ -8312,9 +8319,8 @@ function run() {
             yield commit.save();
             // Set commit sha output
             core.setOutput("commit-sha", commit.sha);
-            // TODO
-            // Update ref
-            // Via: PATCH https://api.github.com/repos/$GITHUB_REPOSITORY/git/$REF
+            // Update ref to point at new commit sha
+            yield ref.update(commit.sha);
         }
         catch (e) {
             core.setFailed(e);
