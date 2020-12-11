@@ -5,6 +5,7 @@ import { Repo } from "./lib/repo";
 import { Ref } from "./lib/ref";
 import { getBlobsFromFiles } from "./lib/blob";
 import { Tree } from "./lib/tree";
+import { Commit } from "./lib/commit";
 
 export default async function run(): Promise<void> {
   try {
@@ -36,11 +37,15 @@ export default async function run(): Promise<void> {
 
     // Create a tree
     const tree: Tree = new Tree(repo, blobs, ref.treeOid);
-    await tree.save();
 
-    // TODO
     // Create commit
-    // Via: POST https://api.github.com/repos/$GITHUB_REPOSITORY/git/commits
+    const commit: Commit = new Commit(repo, tree, commitMessage, [
+      ref.commitOid,
+    ]);
+    await commit.save();
+
+    // Set commit sha output
+    core.setOutput("commit-sha", commit.sha);
 
     // TODO
     // Update ref
