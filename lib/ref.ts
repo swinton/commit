@@ -64,4 +64,13 @@ export class Ref extends Resource {
       `Ref: ${this.fullyQualifiedName}, prefix: ${this.prefix}, commitOid: ${this.commitOid}, treeOid: ${this.treeOid}`
     );
   }
+
+  async update(sha: string): Promise<void> {
+    // Update ref
+    // Via: PATCH https://api.github.com/repos/$GITHUB_REPOSITORY/git/$REF
+    await this.github.patch(
+      `/repos/${this.repo.nameWithOwner}/git/${this.fullyQualifiedName}`,
+      { sha }
+    );
+  }
 }

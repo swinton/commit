@@ -47,9 +47,8 @@ export default async function run(): Promise<void> {
     // Set commit sha output
     core.setOutput("commit-sha", commit.sha);
 
-    // TODO
-    // Update ref
-    // Via: PATCH https://api.github.com/repos/$GITHUB_REPOSITORY/git/$REF
+    // Update ref to point at new commit sha
+    await ref.update(commit.sha);
   } catch (e) {
     core.setFailed(e);
   }
