@@ -7939,7 +7939,7 @@ module.exports = __webpack_require__(1669).deprecate;
 
 /***/ }),
 
-/***/ 9598:
+/***/ 6028:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -7985,9 +7985,18 @@ const github = axios_default().create({
 
 // CONCATENATED MODULE: ./lib/resource.ts
 
+
 class Resource {
     constructor() {
+        this.debug = core.debug;
         this.github = github_client;
+    }
+    graphql(query, variables) {
+        const body = {
+            query,
+            variables,
+        };
+        return this.github.post(`/graphql`, body);
     }
 }
 
@@ -8006,6 +8015,9 @@ class Repo extends Resource {
     constructor(nameWithOwner) {
         super();
         this.nameWithOwner = nameWithOwner;
+        const [owner, name] = this.nameWithOwner.split("/");
+        this.owner = owner;
+        this.name = name;
     }
     save() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -8016,6 +8028,58 @@ class Repo extends Resource {
         return __awaiter(this, void 0, void 0, function* () {
             const response = yield this.github.get(`/repos/${this.nameWithOwner}`);
             this.defaultBranchRef = response.data.default_branch;
+        });
+    }
+}
+
+// CONCATENATED MODULE: ./lib/ref.ts
+var ref_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+class Ref extends Resource {
+    constructor(repo, ref) {
+        super();
+        this.repo = repo;
+        this.ref = ref;
+    }
+    save() {
+        return ref_awaiter(this, void 0, void 0, function* () {
+            throw new Error("Not implemented");
+        });
+    }
+    get fullyQualifiedName() {
+        return this.prefix + this.name;
+    }
+    load() {
+        return ref_awaiter(this, void 0, void 0, function* () {
+            const response = yield this.graphql(`query inspectRef($owner: String!, $name: String!, $ref: String!) {
+        repository(owner: $owner, name: $name) {
+          ref(qualifiedName: $ref) {
+            name
+            prefix
+            commit: target {
+              ... on Commit {
+                oid
+                tree {
+                  oid
+                }
+              }
+            }
+          }
+        }
+      }`, { owner: this.repo.owner, name: this.repo.name, ref: this.ref });
+            this.name = response.data.data.repository.ref.name;
+            this.prefix = response.data.data.repository.ref.prefix;
+            this.commitOid = response.data.data.repository.ref.commit.oid;
+            this.treeOid = response.data.data.repository.ref.commit.tree.oid;
+            this.debug(`Ref: ${this.fullyQualifiedName}, prefix: ${this.prefix}, commitOid: ${this.commitOid}, treeOid: ${this.treeOid}`);
         });
     }
 }
@@ -8038,7 +8102,6 @@ var blob_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arg
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-
 
 
 
@@ -8093,7 +8156,7 @@ class Blob extends Resource {
         return blob_awaiter(this, void 0, void 0, function* () {
             const response = yield this.github.post(`/repos/${this.repo.nameWithOwner}/git/blobs`, this.stream);
             this.sha = response.data.sha;
-            core.debug(`Sha for blob ${this.file}: ${this.sha}.`);
+            this.debug(`Sha for blob ${this.file}: ${this.sha}.`);
         });
     }
 }
@@ -8164,6 +8227,7 @@ var index_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _ar
 
 
 
+
 function run() {
     return index_awaiter(this, void 0, void 0, function* () {
         try {
@@ -8176,7 +8240,9 @@ function run() {
                 default: process.env.GITHUB_WORKSPACE,
             });
             const commitMessage = getInput("commit-message");
-            const ref = getInput("ref", { default: repo.defaultBranchRef });
+            // Load ref details
+            const ref = new Ref(repo, getInput("ref", { default: repo.defaultBranchRef }));
+            yield ref.load();
             // Expand files to an array of "blobs", which will be created on GitHub via the create blob API
             const blobs = getBlobsFromFiles(repo, files, { baseDir });
             core.debug(`Received ${blobs.length} blob${blobs.length === 1 ? "" : "s"}: ${blobs.map((blob) => blob.absoluteFilePath).join(", ")}`);
@@ -8398,6 +8464,6 @@ module.exports = require("zlib");;
 /******/ 	// module exports must be returned from runtime so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(9598);
+/******/ 	return __webpack_require__(6028);
 /******/ })()
 ;
