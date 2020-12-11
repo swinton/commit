@@ -10,7 +10,6 @@ export interface Saveable {
 export default abstract class Resource implements Saveable {
   protected debug: (message: string) => void;
   protected github: AxiosInstance;
-  private route: string;
   constructor() {
     this.debug = core.debug;
     this.github = github;
