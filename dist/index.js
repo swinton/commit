@@ -8152,6 +8152,9 @@ class Blob extends Resource {
             external_stream_.Readable.from('"}'),
         ]);
     }
+    get path() {
+        return this.file;
+    }
     save() {
         return blob_awaiter(this, void 0, void 0, function* () {
             const response = yield this.github.post(`/repos/${this.repo.nameWithOwner}/git/blobs`, this.stream);
@@ -8187,9 +8190,11 @@ var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
 };
 
 class Tree extends Resource {
-    constructor(repo, blobs) {
+    constructor(repo, blobs, parentOid) {
         super();
+        this.repo = repo;
         this.blobs = blobs;
+        this.parentOid = parentOid;
     }
     save() {
         var e_1, _a;
@@ -8208,6 +8213,21 @@ class Tree extends Resource {
                 }
                 finally { if (e_1) throw e_1.error; }
             }
+            // Save the tree
+            // Via: POST https://api.github.com/repos/$GITHUB_REPOSITORY/git/trees
+            const response = yield this.github.post(`repos/${this.repo.nameWithOwner}/git/trees`, {
+                tree: this.blobs.map((blob) => {
+                    return {
+                        path: blob.path,
+                        mode: blob.mode,
+                        type: blob.type,
+                        sha: blob.sha,
+                    };
+                }),
+                base_tree: this.parentOid,
+            });
+            this.sha = response.data.sha;
+            this.debug(`Tree: ${this.sha}`);
         });
     }
 }
@@ -8247,7 +8267,7 @@ function run() {
             const blobs = getBlobsFromFiles(repo, files, { baseDir });
             core.debug(`Received ${blobs.length} blob${blobs.length === 1 ? "" : "s"}: ${blobs.map((blob) => blob.absoluteFilePath).join(", ")}`);
             // Create a tree
-            const tree = new Tree(repo, blobs);
+            const tree = new Tree(repo, blobs, ref.treeOid);
             yield tree.save();
             // TODO
             // Create commit
