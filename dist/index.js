@@ -7939,7 +7939,7 @@ module.exports = __webpack_require__(1669).deprecate;
 
 /***/ }),
 
-/***/ 6028:
+/***/ 5627:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -8232,6 +8232,42 @@ class Tree extends Resource {
     }
 }
 
+// CONCATENATED MODULE: ./lib/commit.ts
+var commit_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+class Commit extends Resource {
+    constructor(repo, tree, message, parents) {
+        super();
+        this.repo = repo;
+        this.tree = tree;
+        this.message = message;
+        this.parents = parents;
+    }
+    save() {
+        return commit_awaiter(this, void 0, void 0, function* () {
+            // Save the tree first
+            yield this.tree.save();
+            // Save the commit
+            // Via: POST https://api.github.com/repos/$GITHUB_REPOSITORY/git/commits
+            const response = yield this.github.post(`/repos/${this.repo.nameWithOwner}/git/commits`, {
+                message: this.message,
+                tree: this.tree.sha,
+                parents: this.parents,
+            });
+            this.sha = response.data.sha;
+            this.debug(`Commit: ${this.sha}`);
+        });
+    }
+}
+
 // CONCATENATED MODULE: ./index.ts
 var index_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -8242,6 +8278,7 @@ var index_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _ar
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
 
 
 
@@ -8268,10 +8305,13 @@ function run() {
             core.debug(`Received ${blobs.length} blob${blobs.length === 1 ? "" : "s"}: ${blobs.map((blob) => blob.absoluteFilePath).join(", ")}`);
             // Create a tree
             const tree = new Tree(repo, blobs, ref.treeOid);
-            yield tree.save();
-            // TODO
             // Create commit
-            // Via: POST https://api.github.com/repos/$GITHUB_REPOSITORY/git/commits
+            const commit = new Commit(repo, tree, commitMessage, [
+                ref.commitOid,
+            ]);
+            yield commit.save();
+            // Set commit sha output
+            core.setOutput("commit-sha", commit.sha);
             // TODO
             // Update ref
             // Via: PATCH https://api.github.com/repos/$GITHUB_REPOSITORY/git/$REF
@@ -8484,6 +8524,6 @@ module.exports = require("zlib");;
 /******/ 	// module exports must be returned from runtime so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(6028);
+/******/ 	return __webpack_require__(5627);
 /******/ })()
 ;
