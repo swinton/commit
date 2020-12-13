@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "lint": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}'",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "build": "ncc build index.ts -o dist"
   },
   "repository": {
@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/swinton/commit#readme",
   "devDependencies": {
+    "@types/jest": "^26.0.19",
     "@types/node": "^14.14.10",
     "@typescript-eslint/eslint-plugin": "^4.9.1",
     "@typescript-eslint/parser": "^4.9.1",
@@ -28,12 +29,16 @@
     "eslint": "^7.15.0",
     "eslint-config-prettier": "^7.0.0",
     "eslint-plugin-prettier": "^3.2.0",
+    "jest": "^26.6.3",
     "prettier": "^2.2.1",
+    "tempy": "^1.0.0",
+    "ts-jest": "^26.4.4",
     "typescript": "^4.1.2"
   },
   "dependencies": {
     "@actions/core": "^1.2.6",
     "axios": "^0.21.0",
+    "base64-stream": "^1.0.0",
     "multistream": "^4.0.1"
   }
 }

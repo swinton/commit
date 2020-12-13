@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2015",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "esModuleInterop": true                   /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
   }
 }

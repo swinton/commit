@@ -1,19 +1,10 @@
 import * as fs from "fs";
-import { Readable, Transform } from "stream";
+import { Readable } from "stream";
 import { join } from "path";
-import * as MultiStream from "multistream";
+import { Base64Encode } from "base64-stream";
+import MultiStream from "multistream";
 import Resource from "./resource";
 import { Repo } from "./repo";
-
-/**
- * Encodes chunks in a stream to base64
- */
-const base64Transformer = new Transform({
-  transform(chunk, encoding, callback) {
-    this.push(chunk.toString("base64"));
-    callback();
-  },
-});
 
 export class Blob extends Resource {
   readonly type: string = "blob";
@@ -49,13 +40,15 @@ export class Blob extends Resource {
    * See: https://docs.github.com/rest/reference/git#create-a-blob
    */
   get stream(): Readable {
+    const streams: Readable[] = [
+      Readable.from('{"encoding":"base64","content":"'),
+      fs.createReadStream(this.absoluteFilePath).pipe(new Base64Encode()),
+      Readable.from('"}'),
+    ];
+
     // Produces the JSON body as a stream, so that we don't have to read (
     // potentially very large) files into memory
-    return new MultiStream([
-      Readable.from('{"encoding":"base64","content":"'),
-      fs.createReadStream(this.absoluteFilePath).pipe(base64Transformer),
-      Readable.from('"}'),
-    ]);
+    return new MultiStream(streams);
   }
 
   get path(): string {
