@@ -1,6 +1,8 @@
+import fs from "fs";
+import { join } from "path";
 import { finished } from "stream";
 import { promisify } from "util";
-import streams from "memory-streams";
+import tempy from "tempy";
 
 import { Repo } from "../lib/repo";
 import { Blob } from "../lib/blob";
@@ -11,7 +13,7 @@ describe("Blob", () => {
 
   beforeEach(() => {
     repo = new Repo("foo/bar");
-    blob = new Blob(repo, __dirname, "fixtures/zen.txt");
+    blob = new Blob(repo, __dirname, "fixtures/blob.txt");
   });
 
   test("mode", () => {
@@ -19,15 +21,21 @@ describe("Blob", () => {
   });
 
   test("path", () => {
-    expect(blob.path).toBe("fixtures/zen.txt");
+    expect(blob.path).toBe("fixtures/blob.txt");
   });
 
   test("stream", async () => {
     const source = blob.stream;
-    const dest = new streams.WritableStream();
+    const dest = fs.createWriteStream(tempy.file({ extension: "json" }));
     await promisify(finished)(source.pipe(dest));
-    expect(dest.toString()).toBe(
-      '{"encoding":"base64","content":"S2VlcCBpdCBsb2dpY2FsbHkgYXdlc29tZS4K"}'
+    expect(
+      JSON.parse(fs.readFileSync(dest.path.toString()).toString())
+    ).toEqual(
+      JSON.parse(
+        fs
+          .readFileSync(join(__dirname, "fixtures", "blob.payload.json"))
+          .toString()
+      )
     );
   });
 });
