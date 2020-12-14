@@ -1,8 +1,7 @@
-import { join } from "path";
 import axios from "axios";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const pkg = require(join(__dirname, "..", "package.json"));
+const pkg = require("../package.json");
 
 const github = axios.create({
   baseURL: `https://api.github.com/`,
