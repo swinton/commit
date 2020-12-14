@@ -22,7 +22,7 @@ jobs:
             | jq --raw-output '.object.sha' )
           gh api /repos/$GITHUB_REPOSITORY/git/refs \
             --field sha="$SHA" \
-            --field ref="refs/heads/staging/v2.x"
+            --field ref="refs/heads/v2.x"
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
       - run: npm ci
@@ -34,7 +34,7 @@ jobs:
           files: |
             dist/index.js
           commit-message: Add dist/index.js
-          ref: refs/heads/staging/v2.x
+          ref: refs/heads/v2.x
       - uses: actions/upload-artifact@v2
         with:
           name: build
