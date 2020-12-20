@@ -6,7 +6,7 @@
 ## About
 This action allows you to create a commit with GitHub Actions. Commits created with this actions will be marked as _verified_.
 
-![image](https://user-images.githubusercontent.com/27806/101197362-a2ed0980-3627-11eb-9afb-bc8b9bcd0345.png)
+![image](https://user-images.githubusercontent.com/27806/102705224-ab118f80-424a-11eb-94c5-ab7396ccba13.png)
 
 ## Usage
 In your workflow, to commit a file `./myfile`, include a step like this:
