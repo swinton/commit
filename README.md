@@ -4,7 +4,7 @@
  ![](https://github.com/swinton/commit/workflows/tests/badge.svg) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 ## About
-This action allows you to create a commit with GitHub Actions. Commits created with this actions will be marked as _verified_.
+This action allows you to create and push a commit with GitHub Actions. Commits created with this actions will be marked as _verified_.
 
 ![image](https://user-images.githubusercontent.com/27806/102705224-ab118f80-424a-11eb-94c5-ab7396ccba13.png)
 
