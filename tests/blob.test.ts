@@ -2,7 +2,6 @@ import fs from "fs";
 import { join } from "path";
 import { finished } from "stream";
 import { promisify } from "util";
-import tempy from "tempy";
 
 import { Repo } from "../lib/repo";
 import { Blob } from "../lib/blob";
@@ -26,7 +25,7 @@ describe("Blob", () => {
 
   test("stream", async () => {
     const source = blob.stream;
-    const dest = fs.createWriteStream(tempy.file({ extension: "json" }));
+    const dest = fs.createWriteStream('rando.json');
     await promisify(finished)(source.pipe(dest));
     expect(
       JSON.parse(fs.readFileSync(dest.path.toString()).toString())
@@ -37,5 +36,6 @@ describe("Blob", () => {
           .toString()
       )
     );
+    fs.rmSync('rando.json');
   });
 });
