@@ -10079,7 +10079,7 @@ module.exports = require("zlib");
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"@imjohnbo/commit","version":"1.0.0","description":"Create a verified commit with GitHub Actions","main":"dist/index.js","scripts":{"start":"node dist/index.js","test":"jest","build":"ncc build index.ts -o dist"},"repository":{"type":"git","url":"git+https://github.com/imjohnbo/commit.git"},"keywords":[],"author":"John Bohannon (https://github.com/imjohnbo)","license":"ISC","bugs":{"url":"https://github.com/imjohnbo/commit/issues"},"homepage":"https://github.com/imjohnbo/commit#readme","devDependencies":{"@types/jest":"^27.4.1","@types/node":"^17.0.21","@vercel/ncc":"^0.33.3","prettier":"^2.2.1","ts-jest":"^27.1.3","typescript":"^4.1.2"},"dependencies":{"@actions/core":"^1.2.6","axios":"^0.26.0","base64-stream":"^1.0.0","multistream":"^4.0.1"}}');
+module.exports = JSON.parse('{"name":"@imjohnbo/commit","version":"1.0.0","description":"Create a verified commit with GitHub Actions","main":"dist/index.js","scripts":{"start":"node dist/index.js","test":"jest","build":"ncc build index.ts -o dist"},"repository":{"type":"git","url":"git+https://github.com/imjohnbo/commit.git"},"keywords":[],"author":"John Bohannon (https://github.com/imjohnbo)","license":"ISC","bugs":{"url":"https://github.com/imjohnbo/commit/issues"},"homepage":"https://github.com/imjohnbo/commit#readme","devDependencies":{"@types/jest":"^27.4.1","@types/node":"^17.0.21","@vercel/ncc":"^0.33.3","jest":"^27.5.1","prettier":"^2.2.1","ts-jest":"^27.1.3","typescript":"^4.1.2"},"dependencies":{"@actions/core":"^1.2.6","axios":"^0.26.0","base64-stream":"^1.0.0","multistream":"^4.0.1"}}');
 
 /***/ })
 
