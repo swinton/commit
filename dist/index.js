@@ -8506,20 +8506,19 @@ function run() {
             // Load ref details
             const ref = new Ref(repo, getInput("ref", { default: repo.defaultBranchRef }));
             yield ref.load();
-            core.debug(`Tree OID: ${ref.treeOid}`);
-            core.debug(`Commit OID: ${ref.commitOid}`);
             // Expand files to an array of "blobs", which will be created on GitHub via the create blob API
             const blobs = getBlobsFromFiles(repo, files, { baseDir });
             core.debug(`Received ${blobs.length} blob${blobs.length === 1 ? "" : "s"}: ${blobs.map((blob) => blob.absoluteFilePath).join(", ")}`);
             // Create a tree
             const tree = new Tree(repo, blobs, ref.treeOid);
-            // Create commit if tree has changed
+            // Create a commit
+            const commit = new Commit(repo, tree, commitMessage, [
+                ref.commitOid,
+            ]);
+            yield commit.save();
+            // Update ref if tree has changed
             if (tree.sha !== ref.treeOid) {
                 core.debug("Tree has changed, creating commit");
-                const commit = new Commit(repo, tree, commitMessage, [
-                    ref.commitOid,
-                ]);
-                yield commit.save();
                 // Set commit sha output
                 core.setOutput("commit-sha", commit.sha);
                 // Update ref to point at new commit sha
