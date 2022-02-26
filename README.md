@@ -1,7 +1,7 @@
 # Commit
 > :white_check_mark: Create a _verified_ commit with GitHub Actions
 
- ![](https://github.com/swinton/commit/workflows/tests/badge.svg) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+ ![](https://github.com/imjohnbo/commit/workflows/tests/badge.svg) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 ## About
 This action allows you to create a commit with GitHub Actions. Commits created with this actions will be marked as _verified_.
@@ -13,9 +13,7 @@ In your workflow, to commit a file `./myfile`, include a step like this:
 
 ```yaml
     - name: Commit file
-      uses: swinton/commit@v2.x
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: imjohnbo/commit@v1
       with:
         files: |
           myfile
@@ -23,15 +21,13 @@ In your workflow, to commit a file `./myfile`, include a step like this:
         ref: refs/heads/my-branch
 ```
 
-Note, the `GH_TOKEN` environment variable is _required_, since commits are created using GitHub's [Git Database API](https://docs.github.com/rest/reference/git).
+`imjohnbo/commit` only commits files that have changed.
 
 To commit multiple files in a single commit, pass each file on a newline to the `files` input:
 
 ```yaml
     - name: Commit files
-      uses: swinton/commit@v2.x
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: imjohnbo/commit@v1
       with:
         files: |
           path/to/myfile1
@@ -42,6 +38,8 @@ To commit multiple files in a single commit, pass each file on a newline to the 
 ```
 
 ## Inputs
+The `token` input is optional.
+
 The following inputs are _required_:
 
 - `files`: Newline-separated list of files to be committed, relative to root of repository, e.g. <pre>myfile1<br>myfile2<br>...<br>myfileN</pre>

@@ -38,17 +38,27 @@ export default async function run(): Promise<void> {
     // Create a tree
     const tree: Tree = new Tree(repo, blobs, ref.treeOid);
 
-    // Create commit
+    // Create a commit
     const commit: Commit = new Commit(repo, tree, commitMessage, [
       ref.commitOid,
     ]);
     await commit.save();
 
-    // Set commit sha output
-    core.setOutput("commit-sha", commit.sha);
+    // Update ref if tree has changed
+    if (tree.sha !== ref.treeOid) {
+      core.debug("Tree has changed, creating commit");
 
-    // Update ref to point at new commit sha
-    await ref.update(commit.sha);
+      // Set commit sha output
+      core.setOutput("commit-sha", commit.sha);
+  
+      // Update ref to point at new commit sha
+      await ref.update(commit.sha);
+    }
+    else {
+      core.debug("Tree has not changed, skipping commit");
+      core.setOutput("commit-sha", "");
+    }
+
   } catch (e) {
     core.setFailed(e);
   }
