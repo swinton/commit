@@ -1,6 +1,11 @@
 name: Verified commit
 description: GitHub Action to create verified commits
 inputs:
+  token:
+    description: |
+      GitHub access token
+    required: false
+    default: ${{ github.token }}
   files:
     description: |
       Newline-separated list of files to be committed, relative to root of repository.
@@ -23,7 +28,7 @@ outputs:
   commit-sha:
     description: SHA of created commit
 runs:
-  using: node12
+  using: node16
   main: dist/index.js
 branding:
   icon: git-commit

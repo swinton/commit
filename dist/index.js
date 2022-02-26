@@ -2419,6 +2419,206 @@ module.exports = {
 
 /***/ }),
 
+/***/ 270:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const Base64Encode = __webpack_require__(5110);
+const Base64Decode = __webpack_require__(3208);
+
+module.exports = {
+    Base64Encode,
+    Base64Decode
+};
+
+
+/***/ }),
+
+/***/ 3208:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const { Transform } = __webpack_require__(2413);
+
+/**
+ * Decodes a Base64 data stream, coming in as a string or Buffer of UTF-8 text, into binary Buffers.
+ * @extends Transform
+ */
+module.exports = class Base64Decode extends Transform {
+    /**
+     * Create a Base64Decode
+     */
+    constructor() {
+        super({ decodeStrings: false });
+        // Any extra chars from the last chunk
+        this.extra = '';
+    }
+
+    /**
+     * Decodes a Base64 data stream, coming in as a string or Buffer of UTF-8 text, into binary Buffers.
+     * @param {Buffer|string} chunk
+     * @param encoding
+     * @param cb
+     * @private
+     */
+    _transform(chunk, encoding, cb) {
+        // Convert chunk to a string
+        chunk = '' + chunk;
+
+        // Add previous extra and remove any newline characters
+        chunk = this.extra + chunk.replace(/(\r\n|\n|\r)/gm, '');
+
+        // 4 characters represent 3 bytes, so we can only decode in groups of 4 chars
+        const remaining = chunk.length % 4;
+
+        // Store the extra chars for later
+        this.extra = chunk.slice(chunk.length - remaining);
+        chunk = chunk.slice(0, chunk.length - remaining);
+
+        // Create the new buffer and push
+        const buf = Buffer.from(chunk, 'base64');
+        this.push(buf);
+        cb();
+    }
+
+    /**
+     * Emits 1, 2, or 3 extra characters of base64 data.
+     * @param cb
+     * @private
+     */
+    _flush(cb) {
+        if (this.extra.length) {
+            this.push(Buffer.from(this.extra, 'base64'));
+        }
+
+        cb();
+    }
+};
+
+
+/***/ }),
+
+/***/ 5110:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const { Transform } = __webpack_require__(2413);
+
+/**
+ * Transforms a Buffer stream of binary data to a stream of Base64 text. Note that this will
+ * also work on a stream of pure strings, as the Writeable base class will automatically decode
+ * text string chunks into Buffers.
+ * You can pass optionally a line length or a prefix
+ * @extends Transform
+ */
+module.exports = class Base64Encode extends Transform {
+    /**
+     * Creates a Base64Encode
+     * @param {Object=} options - Options for stream creation. Passed to Transform constructor as-is.
+     * @param {string=} options.inputEncoding - The input chunk format. Default is 'utf8'. No effect on Buffer input chunks.
+     * @param {string=} options.outputEncoding - The output chunk format. Default is 'utf8'. Pass `null` for Buffer chunks.
+     * @param {number=} options.lineLength - The max line-length of the output stream.
+     * @param {string=} options.prefix - Prefix for output string.
+     */
+    constructor(options) {
+        super(options);
+
+        // Any extra chars from the last chunk
+        this.extra = null;
+        this.lineLength = options && options.lineLength;
+        this.currLineLength = 0;
+        if (options && options.prefix) {
+            this.push(options.prefix);
+        }
+
+        // Default string input to be treated as 'utf8'
+        const encIn = options && options.inputEncoding;
+        this.setDefaultEncoding(encIn || 'utf8');
+
+        // Default output to be strings
+        const encOut = options && options.outputEncoding;
+        if (encOut !== null) {
+            this.setEncoding(encOut || 'utf8');
+        }
+    }
+
+    /**
+     * Adds \r\n as needed to the data chunk to ensure that the output Base64 string meets
+     * the maximum line length requirement.
+     * @param {string} chunk
+     * @returns {string}
+     * @private
+     */
+    _fixLineLength(chunk) {
+        // If we care about line length, add line breaks
+        if (!this.lineLength) {
+            return chunk;
+        }
+
+        const size = chunk.length;
+        const needed = this.lineLength - this.currLineLength;
+        let start, end;
+
+        let _chunk = '';
+        for (start = 0, end = needed; end < size; start = end, end += this.lineLength) {
+            _chunk += chunk.slice(start, end);
+            _chunk += '\r\n';
+        }
+
+        const left = chunk.slice(start);
+        this.currLineLength = left.length;
+
+        _chunk += left;
+
+        return _chunk;
+    }
+
+    /**
+    * Transforms a Buffer chunk of data to a Base64 string chunk.
+    * @param {Buffer} chunk
+    * @param {string} encoding - unused since chunk is always a Buffer
+    * @param cb
+    * @private
+    */
+    _transform(chunk, encoding, cb) {
+        // Add any previous extra bytes to the chunk
+        if (this.extra) {
+            chunk = Buffer.concat([this.extra, chunk]);
+            this.extra = null;
+        }
+
+        // 3 bytes are represented by 4 characters, so we can only encode in groups of 3 bytes
+        const remaining = chunk.length % 3;
+
+        if (remaining !== 0) {
+            // Store the extra bytes for later
+            this.extra = chunk.slice(chunk.length - remaining);
+            chunk = chunk.slice(0, chunk.length - remaining);
+        }
+
+        // Convert chunk to a base 64 string
+        chunk = chunk.toString('base64');
+
+        // Push the chunk
+        this.push(Buffer.from(this._fixLineLength(chunk)));
+        cb();
+    }
+
+    /**
+     * Emits 0 or 4 extra characters of Base64 data.
+     * @param cb
+     * @private
+     */
+    _flush(cb) {
+        if (this.extra) {
+            this.push(Buffer.from(this._fixLineLength(this.extra.toString('base64'))));
+        }
+
+        cb();
+    }
+
+};
+
+
+/***/ }),
+
 /***/ 8222:
 /***/ ((module, exports, __webpack_require__) => {
 
@@ -7971,13 +8171,15 @@ var axios_default = /*#__PURE__*/__webpack_require__.n(axios);
 
 // CONCATENATED MODULE: ./lib/github-client.ts
 
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = __webpack_require__(306);
+const token = getInput("token");
 const github = axios_default().create({
     baseURL: `https://api.github.com/`,
     headers: {
         accept: `application/vnd.github.v3+json`,
-        authorization: `bearer ${process.env.GH_TOKEN}`,
+        authorization: `bearer ${token}`,
         "user-agent": `${pkg.name}/${pkg.version}`,
     },
 });
@@ -8097,8 +8299,12 @@ var external_fs_ = __webpack_require__(5747);
 var external_stream_ = __webpack_require__(2413);
 // EXTERNAL MODULE: external "path"
 var external_path_ = __webpack_require__(5622);
+// EXTERNAL MODULE: ./node_modules/base64-stream/index.js
+var base64_stream = __webpack_require__(270);
 // EXTERNAL MODULE: ./node_modules/multistream/index.js
 var multistream = __webpack_require__(7999);
+var multistream_default = /*#__PURE__*/__webpack_require__.n(multistream);
+
 // CONCATENATED MODULE: ./lib/blob.ts
 var blob_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -8114,15 +8320,7 @@ var blob_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arg
 
 
 
-/**
- * Encodes chunks in a stream to base64
- */
-const base64Transformer = new external_stream_.Transform({
-    transform(chunk, encoding, callback) {
-        this.push(chunk.toString("base64"));
-        callback();
-    },
-});
+
 class Blob extends Resource {
     constructor(repo, baseDir, file) {
         super();
@@ -8151,13 +8349,14 @@ class Blob extends Resource {
      * See: https://docs.github.com/rest/reference/git#create-a-blob
      */
     get stream() {
+        const streams = [
+            external_stream_.Readable.from('{"encoding":"base64","content":"'),
+            external_fs_.createReadStream(this.absoluteFilePath).pipe(new base64_stream.Base64Encode()),
+            external_stream_.Readable.from('"}'),
+        ];
         // Produces the JSON body as a stream, so that we don't have to read (
         // potentially very large) files into memory
-        return new multistream([
-            external_stream_.Readable.from('{"encoding":"base64","content":"'),
-            external_fs_.createReadStream(this.absoluteFilePath).pipe(base64Transformer),
-            external_stream_.Readable.from('"}'),
-        ]);
+        return new (multistream_default())(streams);
     }
     get path() {
         return this.file;
@@ -8336,7 +8535,7 @@ run();
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse("{\"_from\":\"axios\",\"_id\":\"axios@0.21.0\",\"_inBundle\":false,\"_integrity\":\"sha512-fmkJBknJKoZwem3/IKSSLpkdNXZeBu5Q7GA/aRsr2btgrptmSCxi2oFjZHqGdK9DoTil9PIHlPIZw2EcRJXRvw==\",\"_location\":\"/axios\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"tag\",\"registry\":true,\"raw\":\"axios\",\"name\":\"axios\",\"escapedName\":\"axios\",\"rawSpec\":\"\",\"saveSpec\":null,\"fetchSpec\":\"latest\"},\"_requiredBy\":[\"#USER\",\"/\"],\"_resolved\":\"https://registry.npmjs.org/axios/-/axios-0.21.0.tgz\",\"_shasum\":\"26df088803a2350dff2c27f96fef99fe49442aca\",\"_spec\":\"axios\",\"_where\":\"/Users/swinton/GitHub/swinton/verified-commit\",\"author\":{\"name\":\"Matt Zabriskie\"},\"browser\":{\"./lib/adapters/http.js\":\"./lib/adapters/xhr.js\"},\"bugs\":{\"url\":\"https://github.com/axios/axios/issues\"},\"bundleDependencies\":false,\"bundlesize\":[{\"path\":\"./dist/axios.min.js\",\"threshold\":\"5kB\"}],\"dependencies\":{\"follow-redirects\":\"^1.10.0\"},\"deprecated\":false,\"description\":\"Promise based HTTP client for the browser and node.js\",\"devDependencies\":{\"bundlesize\":\"^0.17.0\",\"coveralls\":\"^3.0.0\",\"es6-promise\":\"^4.2.4\",\"grunt\":\"^1.0.2\",\"grunt-banner\":\"^0.6.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-clean\":\"^1.1.0\",\"grunt-contrib-watch\":\"^1.0.0\",\"grunt-eslint\":\"^20.1.0\",\"grunt-karma\":\"^2.0.0\",\"grunt-mocha-test\":\"^0.13.3\",\"grunt-ts\":\"^6.0.0-beta.19\",\"grunt-webpack\":\"^1.0.18\",\"istanbul-instrumenter-loader\":\"^1.0.0\",\"jasmine-core\":\"^2.4.1\",\"karma\":\"^1.3.0\",\"karma-chrome-launcher\":\"^2.2.0\",\"karma-coverage\":\"^1.1.1\",\"karma-firefox-launcher\":\"^1.1.0\",\"karma-jasmine\":\"^1.1.1\",\"karma-jasmine-ajax\":\"^0.1.13\",\"karma-opera-launcher\":\"^1.0.0\",\"karma-safari-launcher\":\"^1.0.0\",\"karma-sauce-launcher\":\"^1.2.0\",\"karma-sinon\":\"^1.0.5\",\"karma-sourcemap-loader\":\"^0.3.7\",\"karma-webpack\":\"^1.7.0\",\"load-grunt-tasks\":\"^3.5.2\",\"minimist\":\"^1.2.0\",\"mocha\":\"^5.2.0\",\"sinon\":\"^4.5.0\",\"typescript\":\"^2.8.1\",\"url-search-params\":\"^0.10.0\",\"webpack\":\"^1.13.1\",\"webpack-dev-server\":\"^1.14.1\"},\"homepage\":\"https://github.com/axios/axios\",\"jsdelivr\":\"dist/axios.min.js\",\"keywords\":[\"xhr\",\"http\",\"ajax\",\"promise\",\"node\"],\"license\":\"MIT\",\"main\":\"index.js\",\"name\":\"axios\",\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/axios/axios.git\"},\"scripts\":{\"build\":\"NODE_ENV=production grunt build\",\"coveralls\":\"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js\",\"examples\":\"node ./examples/server.js\",\"fix\":\"eslint --fix lib/**/*.js\",\"postversion\":\"git push && git push --tags\",\"preversion\":\"npm test\",\"start\":\"node ./sandbox/server.js\",\"test\":\"grunt test && bundlesize\",\"version\":\"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json\"},\"typings\":\"./index.d.ts\",\"unpkg\":\"dist/axios.min.js\",\"version\":\"0.21.0\"}");
+module.exports = JSON.parse("{\"name\":\"axios\",\"version\":\"0.21.0\",\"description\":\"Promise based HTTP client for the browser and node.js\",\"main\":\"index.js\",\"scripts\":{\"test\":\"grunt test && bundlesize\",\"start\":\"node ./sandbox/server.js\",\"build\":\"NODE_ENV=production grunt build\",\"preversion\":\"npm test\",\"version\":\"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json\",\"postversion\":\"git push && git push --tags\",\"examples\":\"node ./examples/server.js\",\"coveralls\":\"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js\",\"fix\":\"eslint --fix lib/**/*.js\"},\"repository\":{\"type\":\"git\",\"url\":\"https://github.com/axios/axios.git\"},\"keywords\":[\"xhr\",\"http\",\"ajax\",\"promise\",\"node\"],\"author\":\"Matt Zabriskie\",\"license\":\"MIT\",\"bugs\":{\"url\":\"https://github.com/axios/axios/issues\"},\"homepage\":\"https://github.com/axios/axios\",\"devDependencies\":{\"bundlesize\":\"^0.17.0\",\"coveralls\":\"^3.0.0\",\"es6-promise\":\"^4.2.4\",\"grunt\":\"^1.0.2\",\"grunt-banner\":\"^0.6.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-clean\":\"^1.1.0\",\"grunt-contrib-watch\":\"^1.0.0\",\"grunt-eslint\":\"^20.1.0\",\"grunt-karma\":\"^2.0.0\",\"grunt-mocha-test\":\"^0.13.3\",\"grunt-ts\":\"^6.0.0-beta.19\",\"grunt-webpack\":\"^1.0.18\",\"istanbul-instrumenter-loader\":\"^1.0.0\",\"jasmine-core\":\"^2.4.1\",\"karma\":\"^1.3.0\",\"karma-chrome-launcher\":\"^2.2.0\",\"karma-coverage\":\"^1.1.1\",\"karma-firefox-launcher\":\"^1.1.0\",\"karma-jasmine\":\"^1.1.1\",\"karma-jasmine-ajax\":\"^0.1.13\",\"karma-opera-launcher\":\"^1.0.0\",\"karma-safari-launcher\":\"^1.0.0\",\"karma-sauce-launcher\":\"^1.2.0\",\"karma-sinon\":\"^1.0.5\",\"karma-sourcemap-loader\":\"^0.3.7\",\"karma-webpack\":\"^1.7.0\",\"load-grunt-tasks\":\"^3.5.2\",\"minimist\":\"^1.2.0\",\"mocha\":\"^5.2.0\",\"sinon\":\"^4.5.0\",\"typescript\":\"^2.8.1\",\"url-search-params\":\"^0.10.0\",\"webpack\":\"^1.13.1\",\"webpack-dev-server\":\"^1.14.1\"},\"browser\":{\"./lib/adapters/http.js\":\"./lib/adapters/xhr.js\"},\"jsdelivr\":\"dist/axios.min.js\",\"unpkg\":\"dist/axios.min.js\",\"typings\":\"./index.d.ts\",\"dependencies\":{\"follow-redirects\":\"^1.10.0\"},\"bundlesize\":[{\"path\":\"./dist/axios.min.js\",\"threshold\":\"5kB\"}]}");
 
 /***/ }),
 
@@ -8344,7 +8543,7 @@ module.exports = JSON.parse("{\"_from\":\"axios\",\"_id\":\"axios@0.21.0\",\"_in
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse("{\"name\":\"@swinton/commit\",\"version\":\"2.0.0\",\"description\":\"Create a verified commit with GitHub Actions\",\"main\":\"dist/index.js\",\"scripts\":{\"start\":\"node dist/index.js\",\"lint\":\"tsc --noEmit && eslint '*/**/*.{js,ts,tsx}'\",\"test\":\"echo \\\"Error: no test specified\\\" && exit 1\",\"build\":\"ncc build index.ts -o dist\"},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/swinton/commit.git\"},\"keywords\":[],\"author\":\"Steve Winton <stevewinton@gmail.com> (https://github.com/swinton)\",\"license\":\"ISC\",\"bugs\":{\"url\":\"https://github.com/swinton/commit/issues\"},\"homepage\":\"https://github.com/swinton/commit#readme\",\"devDependencies\":{\"@types/node\":\"^14.14.10\",\"@typescript-eslint/eslint-plugin\":\"^4.9.1\",\"@typescript-eslint/parser\":\"^4.9.1\",\"@vercel/ncc\":\"^0.25.1\",\"eslint\":\"^7.15.0\",\"eslint-config-prettier\":\"^7.0.0\",\"eslint-plugin-prettier\":\"^3.2.0\",\"prettier\":\"^2.2.1\",\"typescript\":\"^4.1.2\"},\"dependencies\":{\"@actions/core\":\"^1.2.6\",\"axios\":\"^0.21.0\",\"multistream\":\"^4.0.1\"}}");
+module.exports = JSON.parse("{\"name\":\"@swinton/commit\",\"version\":\"2.0.0\",\"description\":\"Create a verified commit with GitHub Actions\",\"main\":\"dist/index.js\",\"scripts\":{\"start\":\"node dist/index.js\",\"lint\":\"tsc --noEmit && eslint '*/**/*.{js,ts,tsx}'\",\"test\":\"jest\",\"build\":\"ncc build index.ts -o dist\"},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/swinton/commit.git\"},\"keywords\":[],\"author\":\"Steve Winton <stevewinton@gmail.com> (https://github.com/swinton)\",\"license\":\"ISC\",\"bugs\":{\"url\":\"https://github.com/swinton/commit/issues\"},\"homepage\":\"https://github.com/swinton/commit#readme\",\"devDependencies\":{\"@types/jest\":\"^26.0.19\",\"@types/node\":\"^14.14.10\",\"@typescript-eslint/eslint-plugin\":\"^4.9.1\",\"@typescript-eslint/parser\":\"^4.9.1\",\"@vercel/ncc\":\"^0.25.1\",\"eslint\":\"^7.15.0\",\"eslint-config-prettier\":\"^7.0.0\",\"eslint-plugin-prettier\":\"^3.2.0\",\"jest\":\"^26.6.3\",\"prettier\":\"^2.2.1\",\"tempy\":\"^1.0.0\",\"ts-jest\":\"^26.4.4\",\"typescript\":\"^4.1.2\"},\"dependencies\":{\"@actions/core\":\"^1.2.6\",\"axios\":\"^0.21.0\",\"base64-stream\":\"^1.0.0\",\"multistream\":\"^4.0.1\"}}");
 
 /***/ }),
 
