@@ -1,5 +1,5 @@
 {
-  "name": "imjohnbo/commit",
+  "name": "@imjohnbo/commit",
   "version": "1.0.0",
   "description": "Create a verified commit with GitHub Actions",
   "main": "dist/index.js",
@@ -14,7 +14,7 @@
     "url": "git+https://github.com/imjohnbo/commit.git"
   },
   "keywords": [],
-  "author": "Steve Winton <stevewinton@gmail.com> (https://github.com/imjohnbo)",
+  "author": "John Bohannon (https://github.com/imjohnbo)",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/imjohnbo/commit/issues"
