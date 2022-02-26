@@ -26,6 +26,8 @@ export default async function run(): Promise<void> {
       getInput("ref", { default: repo.defaultBranchRef })
     );
     await ref.load();
+    core.debug(`Tree OID: ${ref.treeOid}`);
+    core.debug(`Commit OID: ${ref.commitOid}`);
 
     // Expand files to an array of "blobs", which will be created on GitHub via the create blob API
     const blobs = getBlobsFromFiles(repo, files, { baseDir });
@@ -38,17 +40,25 @@ export default async function run(): Promise<void> {
     // Create a tree
     const tree: Tree = new Tree(repo, blobs, ref.treeOid);
 
-    // Create commit
-    const commit: Commit = new Commit(repo, tree, commitMessage, [
-      ref.commitOid,
-    ]);
-    await commit.save();
+    // Create commit if tree has changed
+    if (tree.sha !== ref.treeOid) {
+      core.debug("Tree has changed, creating commit");
+      const commit: Commit = new Commit(repo, tree, commitMessage, [
+        ref.commitOid,
+      ]);
+      await commit.save();
 
-    // Set commit sha output
-    core.setOutput("commit-sha", commit.sha);
+      // Set commit sha output
+      core.setOutput("commit-sha", commit.sha);
+  
+      // Update ref to point at new commit sha
+      await ref.update(commit.sha);
+    }
+    else {
+      core.debug("Tree has not changed, skipping commit");
+      core.setOutput("commit-sha", "");
+    }
 
-    // Update ref to point at new commit sha
-    await ref.update(commit.sha);
   } catch (e) {
     core.setFailed(e);
   }
