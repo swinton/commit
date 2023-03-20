@@ -27,8 +27,8 @@ export class Commit extends Resource {
         parents: this.parents,
       },
       { //config
-        maxBodyLength: Infinity,
-        maxContentLength: Infinity
+        maxBodyLength: 2000000000,
+        maxContentLength: 2000000000
       }
     );
 
