@@ -11,7 +11,7 @@ const github = axios.create({
     "user-agent": `${pkg.name}/${pkg.version}`,
   },
   maxBodyLength: 100000000, //100MB GitHub FileSizeLimit
-  maxContentLength: 100000000
+  maxContentLength: 100000000,
 });
 
 export default github;
