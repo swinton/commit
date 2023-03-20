@@ -21,14 +21,10 @@ export class Commit extends Resource {
     // Via: POST https://api.github.com/repos/$GITHUB_REPOSITORY/git/commits
     const response = await this.github.post(
       `/repos/${this.repo.nameWithOwner}/git/commits`,
-      { //data-body
+      {
         message: this.message,
         tree: this.tree.sha,
         parents: this.parents,
-      },
-      { //config
-        maxBodyLength: 2000000000,
-        maxContentLength: 2000000000
       }
     );
 
