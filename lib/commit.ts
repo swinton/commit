@@ -25,7 +25,7 @@ export class Commit extends Resource {
         message: this.message,
         tree: this.tree.sha,
         parents: this.parents,
-      }
+      },
     );
 
     this.sha = response.data.sha;

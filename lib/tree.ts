@@ -18,6 +18,7 @@ export class Tree extends Resource {
     // Save all the blobs
     for await (const blob of this.blobs) {
       await blob.save();
+      this.debug(String(blob.stream.readableLength));
     }
 
     // Save the tree
@@ -34,7 +35,11 @@ export class Tree extends Resource {
           };
         }),
         base_tree: this.parentOid,
-      }
+        },
+        {
+          maxBodyLength: 100000000, //100MB GitHub FileSizeLimit
+          maxContentLength: 100000000,
+        }
     );
 
     this.sha = response.data.sha;
