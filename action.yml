@@ -58,6 +58,9 @@ runs:
         node-version: 20
         cache: npm
 
+    - run: npm ci
+      shell: bash
+    
     - name: Commit Changes
       shell: bash
       if: steps.detect-changes.outputs.PENDING_CHANGES == 'true'
