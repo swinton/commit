@@ -8,8 +8,7 @@ export default tseslint.config(
     ignores: [
       '**/.*',
       '**/node_modules/*',
-      'build/*',
-      'package/*',
+      'dist/*',
 
       // Ignore files for PNPM, NPM and YARN
       '**/pnpm-lock.yaml',
