@@ -1,5 +1,10 @@
 name: Signed Commit
 description: GitHub Action to create signed commits
+
+branding:
+  icon: git-commit
+  color: orange
+
 inputs:
   files:
     description: |
@@ -19,6 +24,7 @@ inputs:
       Reference to be updated with commit. This reference must already exist. Defaults to the repository's default branch ref.
     required: false
     default: ''
+
 outputs:
   commit-sha:
     description: SHA of created commit
@@ -66,7 +72,3 @@ runs:
       if: steps.detect-changes.outputs.PENDING_CHANGES == 'true'
       run: |
         npm run start
-
-branding:
-  icon: git-commit
-  color: orange

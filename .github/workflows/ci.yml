@@ -1,21 +1,64 @@
 name: tests
+
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
 jobs:
-  test:
-    name: test
+  test-typescript:
+    name: TypeScript Tests
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .node-version
           cache: npm
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run test
+
+      - name: Install Dependencies
+        id: npm-ci
+        run: npm ci
+
+      - name: Check Format
+        id: npm-format-check
+        run: npm run format:check
+
+      - name: Lint
+        id: npm-lint
+        run: npm run lint
+
+      - name: Test
+        id: npm-ci-test
+        run: npm run ci-test
+
+  test-action:
+    name: GitHub Actions Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Test Local Action
+        id: test-action
+        uses: ./
+        with:
+          milliseconds: 2000
+
+      - name: Print Output
+        id: output
+        run: echo "${{ steps.test-action.outputs.time }}"
