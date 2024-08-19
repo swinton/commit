@@ -1,7 +1,10 @@
 {
-  "compilerOptions": {
-    "target": "es2015",
-    "moduleResolution": "node",
-    "esModuleInterop": true                   /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
-  }
+  "extends": "@tsconfig/recommended/tsconfig.json",
+  "include": [
+    "src/**/*.ts"                              // Include all TypeScript files in src
+  ],
+  "exclude": [
+    "node_modules",                            // Exclude node_modules
+    "dist"                                     // Exclude output directory
+  ]
 }

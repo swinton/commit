@@ -1,0 +1,13 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "testTimeout": 5000,
+  "moduleFileExtensions": ["ts", "js"],
+  "transform": {
+    "^.+\\.ts$": "ts-jest"
+  },
+  "testMatch": ["**/tests/**/*.test.ts"],
+  "coverageDirectory": "coverage",
+  "collectCoverageFrom": ["src/**/*.ts"],
+  "verbose": true
+}
